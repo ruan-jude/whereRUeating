@@ -7,7 +7,7 @@ import mariadb
 def setup_cursor(mode):
     db_user = ""
     db_pwd = ""
-   
+
     if mode == "read":
         db_user = ""
         db_pwd = ""
