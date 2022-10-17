@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<TITLE>Login Page</TITLE>
+	</head>
+
+	<body>
+		<h1>Create Account.</h2>
+		<form method="post" action="{{ url_for("create")}}" method="post"> 
+			<label for="user">Username:</label><br>
+			<input type="text" id="user" name="user"> <br>
+			<label for="pass1">Password:</label><br>
+			<input type="text" id="pass1" name="pass1"><br><br>
+			<label for="pass2">Confirm Password:</label><br>
+			<input type="text" id="pass2" name="pass2"><br><br>
+			<input type="submit" value="Log In">
+		</form>
+	</body>
+</html>
