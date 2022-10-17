@@ -11,5 +11,10 @@
     <button onclick="document.location='CreateAccount.html'">Create</button>
     <h1>Login Here</h1>
     <button onclick="document.location='Login.html'">Login</button>    
+    <br> <br>
+
+    {% for message in get_flashed_messages() %}
+		<h2>{{message}}</h2>
+    {% endfor %}
   </body>
 </html>
