@@ -7,7 +7,7 @@ const fs = require('fs');
 const app = express()
 
 const HOSTNAME = '172.16.122.27';
-const PORT = 8080;
+const PORT = 3030;
 
 // ===== FLASK => NODE CONNECTION =====
 // ===== CONNECTS HTML FILES TO URL =====

@@ -25,4 +25,4 @@ def create():
 	return render_template('CreateAccount.html')
 
 if __name__ == '__main__':
-	app.run(host='172.16.122.27', port='8080')
+	app.run(host='172.16.122.27', port='3030')
