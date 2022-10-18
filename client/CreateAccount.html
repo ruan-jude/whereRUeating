@@ -1,10 +1,20 @@
 <html>
 	<head>
 		<TITLE>Login Page</TITLE>
+		<link rel="stylesheet" type"text/css" href="{{ url_for('static', filename='css/Home.css') }}">
 	</head>
 
 	<body>
-		<a href="Home.html">Home Page</a>
+		<header>
+			<nav>
+				<ul>
+				<li><a href="{{ url_for("home")}}">Home Page</a></li>
+				</ul>
+			</nav>
+		</header>
+	</body>
+
+	<body>
 		<h1>Create Account.</h2>
 		<form method="post" action="{{ url_for("create")}}"> 
 			<label for="user">Username:</label><br>

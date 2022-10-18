@@ -1,0 +1,36 @@
+body   
+{  
+height: 125vh;  
+margin-top: 70px;  
+padding: 30x;  
+background-size: cover;  
+font-family: sans-serif;  
+text-align:center;
+}  
+header {  
+background-color: white;  
+position: fixed;  
+left: 0;  
+right: 0;  
+top: 5px;  
+height: 35px;  
+display: flex;  
+align-items: center;  
+box-shadow: 0 0 20px 0 black;  
+}  
+header * {  
+display: inline;  
+}  
+header li {  
+margin: 20px;  
+}  
+header li a {  
+color: red;  
+text-decoration: none;  
+}  
+ul.no-bullets {
+  list-style-type: none; /* Remove bullets */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margins */
+}
+
