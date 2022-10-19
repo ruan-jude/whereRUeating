@@ -1,0 +1,11 @@
+In order to automate update of the menu I decided to utilize Cron. Through cron I'm able to run the create MenuScraper.py script with the following command:
+	
+	0 8 * * 1 /usr/bin/python3 /home/rtj36/whereRUeating/server/MenuScraper.py
+	
+The above command runs MenuScraper at 8 am every Monday morning. This (I believe) only runs on my computer. To create the command I edited the crontab file with
+
+	crontab -e
+
+I am able to list all my cron commands with
+
+	crontab -l
