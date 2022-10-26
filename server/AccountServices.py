@@ -1,33 +1,7 @@
 import bcrypt
 import sys
 import mariadb
-
-def setup_cursor(mode):
-    db_user = "root"
-    db_pwd = ""
-
-    if mode == "read":
-        db_user = "db_reader"
-        db_pwd = "prometheus2007"
-    elif mode == "write":
-        db_user = "db_writer"
-        db_pwd = "deaconblackfire1988"
-
-    try:
-        conn = mariadb.connect(
-                user = db_user,
-                password = db_pwd,
-                port = 3306,
-                database = "whereRUeating"
-                )
-        conn.autocommit = False
-
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-
-    cursor = conn.cursor()
-    return cursor,conn
-
+from DatabaseServices import setup_cursor
 
 # ===== WORKING =====
 def verify_password(username_input, password_input):

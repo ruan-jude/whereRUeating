@@ -1,31 +1,6 @@
 import mariadb
+from DatabaseServices import setup_cursor
 
-def setup_cursor(mode):
-    db_user = ""
-    db_pwd = ""
-   
-    if mode == "read":
-        db_user = ""
-        db_pwd = ""
-    elif mode == "write":
-        db_user = ""
-        db_pwd = ""
-    
-    try:
-        conn = mariadb.connect(
-            user = db_user,
-            password = db_pwd,
-            #host="",
-            port = 3306,
-            database = "testDB"
-        )
-        conn.autocommit = False
-        
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-    
-    cursor = conn.cursor()
-    return cursor,conn
 
 def getMenuItems(requested_date, restaurant_name):
 
@@ -39,9 +14,61 @@ def getMenuItems(requested_date, restaurant_name):
 
     read_conn.close()
 
+def selectDishesBasedOnTags(tagList):
+    #SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = ''
+
+    baseQuery = "SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id"
+    whereClause = " WHERE dishInfo.tag_name = ?"
+    cursor, read_conn = setup_cursor("read")
+
+    for tag in tagList:
+        #print(tag)
+        baseQuery = baseQuery + whereClause
+        if tagList.index(tag) == 0:
+            whereClause = " OR dishInfo.tag_name = ?" 
+
+    #print(baseQuery)
+    cursor.execute(baseQuery, tagList)
+    result_set = cursor.fetchall()
+    print(result_set)
+    read_conn.close()
+
+# SELECT dishes.name FROM dishes 
+# INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id 
+# INNER JOIN menuItems ON menuItems.dish_id = dishes.id
+# WHERE dishInfo.tag_name = ?;
+# SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = ?;
+
+    
+def selectMenuItemsBasedOnTags(tagList):
+    baseQuery = "SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id"
+    whereClause = " WHERE dishInfo.tag_name = ?"
+    cursor, read_conn = setup_cursor("read")
+
+    for tag in tagList:
+        #print(tag)
+        baseQuery = baseQuery + whereClause
+        if tagList.index(tag) == 0:
+            whereClause = " OR dishInfo.tag_name = ?" 
+
+    #print(baseQuery)
+    cursor.execute(baseQuery, tagList)
+    result_set = cursor.fetchall()
+    print(result_set)
+    read_conn.close()
+
+# Get the names of all of the dishes being served that have tag_name = ?
+# SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name FROM menuItems
+# INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
+# INNER JOIN dishes ON menuItems.dish_id = dishes.id
+# WHERE dishInfo.tag_name = ?;
+# SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id WHERE dishInfo.tag_name = ?;
+
 
 def main():
     getMenuItems("something", "restaurant_name")
+    selectDishesBasedOnTags(("tag", "tag1", "tag2", "tag3"))
+    selectMenuItemsBasedOnTags(("tag", "tag1", "tag2", "tag3"))
 
 if __name__ == "__main__":
     main()
