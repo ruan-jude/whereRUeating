@@ -2,21 +2,29 @@
 <html>
 	<head>
 		<title>whereRUeating</title>
-		<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/Home.css') }}">
+		<link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
-		<header>
-			<nav>
-				<ul>
-				<li><a href="{{ url_for("login")}}">Login Page</a></li>
-				<li><a href="{{ url_for("create")}}">Create Account</a></li>
-				</ul>
-			</nav>
-		</header>
-	</body>
-	<body>
-		<h1 style="color:red">whereRUeating</h1>
-		<p>whereRUeating is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. As a freshman, trying to figure out what is currently available at the dining halls was difficult because it could only be seen as a single wall of text, which was only listed on the dining services website that required what felt like three hyperlinks to access. It would be helpful and accessible, instead, to be able to open a site that listed all of the options in a more modern and user-friendly way. Moreover, there are many restaurants that are within walking distance of Rutgers, yet much of the Rutgers community is not aware of them. By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to. </p>
+		<div class="topnav">
+			<a class="active" href="{{ url_for("home")}}">Home</a>
+			<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
+			<a href="{{ url_for("login")}}">Login Page</a>
+			<a href="{{ url_for("create")}}">Create Account</a>
+			<a href="{{ url_for("settings")}}">User Settings</a>
+		</div>
+		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
+			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;">
+				<h1>whereRUeating</h1>
+				<p style="color:white;">
+					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
+					As a freshman, trying to figure out what is currently available at the dining halls was difficult because it could only be seen as a single wall of text, which was only listed on the dining services website that required what felt like three hyperlinks to access.
+					It would be helpful and accessible, instead, to be able to open a site that listed all of the options in a more modern and user-friendly way. Moreover, there are many restaurants that are within walking distance of Rutgers, yet much of the Rutgers community is not aware of them.
+					By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
+				</p>
+			</div>
+			
+		</div>
+		
 		
 		<br> <br>
 
