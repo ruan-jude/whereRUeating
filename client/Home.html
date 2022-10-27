@@ -6,11 +6,11 @@
 	</head>
 	<body>
 		<div class="topnav">
-			<a class="active" href="{{ url_for("home")}}">Home</a>
-			<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-			<a href="{{ url_for("login")}}">Login Page</a>
-			<a href="{{ url_for("create")}}">Create Account</a>
-			<a href="{{ url_for("settings")}}">User Settings</a>
+			<a class="active" href="Home.html">Home</a>
+			<a href="Search.html"><b>Search Now!</b></a>
+			<a href="Login.html">Login Page</a>
+			<a href="CreateAccount.html">Create Account</a>
+			<a href="UserSettings.html">User Settings</a>
 		</div>
 		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
 			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;">
@@ -22,29 +22,27 @@
 					By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
 				</p>
 			</div>
-			
+
 		</div>
-		
-		
-		<br> <br>
+		<div style="padding:50px">
+			<h2>Features to be included</h2>
+			<ul class="no-bullets">
+				<li>Weekly dining hall menus</li>
+				<li>Individual user settings/preferences</li>
+				<li>Specific meal look up</li>
+				<li>Selection of meals by tag</li>
+				<li>Setting meal restrictions</li>
+			</ul>
 
-		<h2>Features to be included</h2>
-		<ul class="no-bullets">
-			<li>Weekly dining hall menus</li>
-			<li>Individual user settings/preferences</li>
-			<li>Specific meal look up</li>
-			<li>Selection of meals by tag</li>
-			<li>Setting meal restrictions</li>
-		</ul>
+			<br> <br>
+			<h2> MORE FEATURES TO COME! </h2>
+			<br> <br>
+			<hr class="solid">
 
-		<br> <br> 		
-		<h2> MORE FEATURES TO COME! </h2>
-		<br> <br>
-		<hr class="solid">
-
-		{% for message in get_flashed_messages() %}
-		<h1>Server response</h1>
-		<p>{{message}}</p>
-		{% endfor %}
+			{% for message in get_flashed_messages() %}
+			<h1>Server response</h1>
+			<p>{{message}}</p>
+			{% endfor %}
+		</div>
 	</body>
 </html>
