@@ -1,27 +1,25 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <TITLE>Login Page</TITLE>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/Home.css') }}">
-  </head>
+<head>
+	<title>whereRUeating</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
 
-	<body>
-		<header>
-			<nav>
-				<ul>
-				<li><a href="{{ url_for("home")}}">Home Page</a></li>
-				</ul>
-			</nav>
-		</header>
-	</body>
-
-  <body>
-    <h1>Login to account.</h1>
-    <form method = "post" action="{{ url_for("login")}}">
-      <label for="user">Username:</label><br>
-      <input type="text" id="user" name="user"><br>
-      <label for="pass">Password:</label><br>
-      <input type="text" id="pass" name="pass"><br><br>
-      <input type="submit" value="Log In">
-  </form>
-  </body>
+<body>
+	<div class="topnav">
+		<a href="Home.html">Home</a>
+		<a href="Search.html"><b>Search Now!</b></a>
+		<a class="active" href="Login.html">Login Page</a>
+		<a href="CreateAccount.html">Create Account</a>
+		<a href="UserSettings.html">User Settings</a>
+	</div>
+	<h1>Login to account.</h1>
+	<form method="post" action="{{ url_for("login")}}">
+		<label for="user">Username:</label><br>
+		<input type="text" id="user" name="user"><br>
+		<label for="pass">Password:</label><br>
+		<input type="password" id="pass" name="pass"><br><br>
+		<input type="submit" value="Log In">
+	</form>
+</body>
 </html>
