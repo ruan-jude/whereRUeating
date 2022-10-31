@@ -1,48 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>whereRUeating</title>
-	<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-	<div class="topnav">
-		<a class="active" href="Home.html">Home</a>
-		<a href="Search.html"><b>Search Now!</b></a>
-		<a href="Login.html">Login Page</a>
-		<a href="CreateAccount.html">Create Account</a>
-		<a href="UserSettings.html">User Settings</a>
-	</div>
-	<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
-		<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;">
-			<h1>whereRUeating</h1>
-			<p style="color:white;">
-				&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
-				As a freshman, trying to figure out what is currently available at the dining halls was difficult because it could only be seen as a single wall of text, which was only listed on the dining services website that required what felt like three hyperlinks to access.
-				It would be helpful and accessible, instead, to be able to open a site that listed all of the options in a more modern and user-friendly way. Moreover, there are many restaurants that are within walking distance of Rutgers, yet much of the Rutgers community is not aware of them.
-				By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
-			</p>
+	<head>
+		<title>whereRUeating</title>
+		<link rel="stylesheet" href="styles.css">
+	</head>
+	<body>
+		<div class="topnav">
+			<a class="active" href="Home.html">Home</a>
+			<a href="Search.html"><b>Search Now!</b></a>
+			<a href="Login.html">Login Page</a>
+			<a href="CreateAccount.html">Create Account</a>
+			<a href="UserSettings.html">User Settings</a>
 		</div>
+		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
+			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;">
+				<h1>whereRUeating</h1>
+				<p style="color:white;">
+					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
+					As a freshman, trying to figure out what is currently available at the dining halls was difficult because it could only be seen as a single wall of text, which was only listed on the dining services website that required what felt like three hyperlinks to access.
+					It would be helpful and accessible, instead, to be able to open a site that listed all of the options in a more modern and user-friendly way. Moreover, there are many restaurants that are within walking distance of Rutgers, yet much of the Rutgers community is not aware of them.
+					By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
+				</p>
+			</div>
 
-	</div>
-	<div style="padding:50px">
-		<h2>Features to be included</h2>
-		<ul class="no-bullets">
-			<li>Weekly dining hall menus</li>
-			<li>Individual user settings/preferences</li>
-			<li>Specific meal look up</li>
-			<li>Selection of meals by tag</li>
-			<li>Setting meal restrictions</li>
-		</ul>
+		</div>
+		<div style="padding:50px">
+			<h2>Features to be included</h2>
+			<ul class="no-bullets">
+				<li>Weekly dining hall menus</li>
+				<li>Individual user settings/preferences</li>
+				<li>Specific meal look up</li>
+				<li>Selection of meals by tag</li>
+				<li>Setting meal restrictions</li>
+			</ul>
 
-		<br> <br>
-		<h2> MORE FEATURES TO COME! </h2>
-		<br> <br>
-		<hr class="solid">
+			<br> <br>
+			<h2> MORE FEATURES TO COME! </h2>
+			<br> <br>
+			<hr class="solid">
 
-		{% for message in get_flashed_messages() %}
-		<h1>Server response</h1>
-		<p>{{message}}</p>
-		{% endfor %}
-	</div>
-</body>
+			{% for message in get_flashed_messages() %}
+			<h1>Server response</h1>
+			<p>{{message}}</p>
+			{% endfor %}
+		</div>
+	</body>
 </html>
