@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\automation",
+    "\\client",
+    "\\client\\images"
   ],
-  "SelectedNode": "\\C:\\Users\\wolv2\\Source\\Repos\\whereRUeating",
+  "SelectedNode": "\\client\\UserSettings.html",
   "PreviewInSolutionExplorer": false
 }
