@@ -2,15 +2,15 @@
 <html>
 <head>
     <title>whereRUeating</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
 </head>
 <body>
     <div class="topnav">
-        <a href="Home.html">Home</a>
-        <a href="Search.html"><b>Search Now!</b></a>
-        <a href="Login.html">Login Page</a>
-        <a href="CreateAccount.html">Create Account</a>
-        <a class="active" href="UserSettings.html">User Settings</a>
+        <a href="{{ url_for("home")}}">Home</a>
+        <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
+        <a href="{{ url_for("login")}}">Login Page</a>
+        <a href="{{ url_for("create")}}">Create Account</a>
+        <a class="active" href="{{ url_for("userSettings")}}">User Settings</a>
     </div>
 </body>
 </html>

@@ -35,5 +35,13 @@ def create():
         return redirect(url_for("home"))
     return render_template('CreateAccount.html')
 
+@app.route('/Search.html', methods=['GET', 'POST'])
+def search():
+	return render_template('Search.html')
+
+@app.route('/UserSettings.html', methods=['GET', 'POST'])
+def userSettings():
+	return render_template('UserSettings.html')
+
 if __name__ == '__main__':
     app.run(host='172.16.122.27', port='8080')

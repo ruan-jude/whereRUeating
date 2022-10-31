@@ -29,8 +29,26 @@ app.get('/Login.html', (req, res) => {
 	});
 });
 
-app.get('/CreateAccount..html', (req, res) => {
+app.get('/CreateAccount.html', (req, res) => {
 	request('http://'+HOSTNAME+':'+PORT+'/CreateAccount.html', function (err, resp, body) {
+		console.error('error:', err);
+		console.log('statusCode:', resp && response.statusCode);
+		console.log('body:', body);
+		res.send(body);
+	});
+});
+
+app.get('/Search.html', (req, res) => {
+	request('http://'+HOSTNAME+':'+PORT+'/Search.html', function (err, resp, body) {
+		console.error('error:', err);
+		console.log('statusCode:', resp && response.statusCode);
+		console.log('body:', body);
+		res.send(body);
+	});
+});
+
+app.get('/UserSettings.html', (req, res) => {
+	request('http://'+HOSTNAME+':'+PORT+'/UserSettings.html', function (err, resp, body) {
 		console.error('error:', err);
 		console.log('statusCode:', resp && response.statusCode);
 		console.log('body:', body);

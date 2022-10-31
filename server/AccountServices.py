@@ -1,7 +1,7 @@
 import bcrypt
 import sys
 import mariadb
-from DatabaseServices import setup_cursor
+from server.DatabaseServices import setup_cursor
 
 # ===== WORKING =====
 def verify_password(username_input, password_input):
