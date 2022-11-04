@@ -1,7 +1,7 @@
 import bcrypt
 import sys
 import mariadb
-from server.DatabaseServices import setup_cursor
+from DatabaseServices import setup_cursor
 
 # ===== WORKING =====
 def verify_password(username_input, password_input):
@@ -52,6 +52,26 @@ def sanitize_info(email_input, username_input, password_input):
     # print("will finish this later")
     pass
 
+def add_user_preference(current_user, tagList):
+    cursor,write_conn = setup_cursor("write")
+    baseQuery = ("INSERT INTO userPreferences (user_id, tag_name) VALUES (?, ?)")
+
+    cursor.execute("SELECT id FROM users WHERE username = ?", (current_user,))
+    result_set = cursor.fetchall()
+
+    if not result_set:
+        return "ERROR: User does not exist"
+
+    print(result_set[0])
+    user_id = result_set[0]
+
+    for tag in tagList:
+        cursor.execute(baseQuery, (user_id, tag))
+
+    write_conn.commit()
+    write_conn.close()
+
+    return "Preferences updated!"
 
 #def main():
 #create_account("testemail@gmail.com", "testUser", "testpassword")
