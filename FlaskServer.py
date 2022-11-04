@@ -16,7 +16,7 @@ def login():
         username = request.form.get('user')
         password = request.form.get('pass')
 
-        res = verify_password(username, password)
+        res = authenticate_account(username, password)
         flash(res)
         return redirect(url_for("home"))
     return render_template('Login.html')
@@ -25,12 +25,13 @@ def login():
 def create():
     if request.method == 'POST':
         # collecting form data
+        email = request.form.get('email')
         user = request.form.get('user')
         pass1 = request.form.get('pass1')
         pass2 = request.form.get('pass2')
 
         # inserts data into the database
-        res = create_account(user+'@gmail.com', user, pass1, pass2)
+        res = create_account(email, user, pass1, pass2)
         flash(res)
         return redirect(url_for("home"))
     return render_template('CreateAccount.html')
