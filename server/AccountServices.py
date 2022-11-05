@@ -82,6 +82,13 @@ def login_account(email_input, username_input, password_input, confirm_input):
     return 'Created user or something'
 
 def sanitize_info(email_input, username_input, password_input):
+    if len(email_input) > 128:
+        return False, "Email too long"
+    elif len(username_input) > 32:
+        return False, "Username too long"
+    elif len(password_input) < 8:
+        return False, "Password cannot be less than 8 characters long"
+    
     if not re.match(r'[^@]+@[^@]+\.[^@]+', email_input):
         return False, 'Invalid email address!'
     elif not re.match(r'[A-Za-z0-9]+', username_input):
