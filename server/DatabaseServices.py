@@ -1,15 +1,20 @@
 import mariadb
+import ServerConstants
 
 def setup_cursor(mode):
-    db_user = "root"
-    db_pwd = "VARRC"
+    db_user = ""
+    db_pwd = ""
    
     if mode == "read":
-        db_user = "root"
-        db_pwd = "VARRC"
+        db_user = ServerConstants.READER_USERNAME
+        db_pwd = ServerConstants.READER_PASSWORD
+        #print("establishing read connection with db reader")
     elif mode == "write":
-        db_user = "root"
-        db_pwd = "VARRC"
+        db_user = ServerConstants.WRITER_PASSWORD
+        db_pwd = ServerConstants.WRITER_PASSWORD
+    elif mode == "test":
+        db_user = ServerConstants.TESTING_USERNAME
+        db_pwd = ServerConstants.TESTING_PASSWORD
     
     try:
         conn = mariadb.connect(
@@ -17,7 +22,7 @@ def setup_cursor(mode):
             password = db_pwd,
             #host="",
             port = 3306,
-            database = "whereRUeating"
+            database = "testDB"
         )
         conn.autocommit = False
         
@@ -27,6 +32,9 @@ def setup_cursor(mode):
     cursor = conn.cursor()
     return cursor,conn    
 
+
+def main():
+    print("Running db_services.py")
 
 if __name__ == "__main__":
     main()
