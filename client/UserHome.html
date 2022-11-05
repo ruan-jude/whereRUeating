@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>whereRUeating</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+	</head>
+	<body>
+		<div class="topnav">
+			<a class="active" href="{{ url_for("userHome") }}">Home</a>
+			<a href="{{ url_for("search") }}"><b>Search Now!</b></a>
+			<a href="{{ url_for("userSettings") }}">User Settings</a>
+		</div>
+		<div>
+			{% block content %}
+				<p>Welcome back, {{ username }}!</p>
+			{% endblock %}
+		</div>
+	</body>
+</html>

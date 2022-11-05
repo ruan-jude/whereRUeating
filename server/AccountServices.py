@@ -1,27 +1,28 @@
 import bcrypt
 import sys
 import mariadb
+import re
 from .DatabaseServices import setup_cursor
 
 # ===== WORKING =====
 def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
-    cursor.execute("SELECT password FROM users WHERE username=?", (username_input,))
+    cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
     result_set = cursor.fetchall()
 
     if result_set==None or not result_set: 
-        return "Invalid login: user does not exist"
-
-    retrieved_hash = result_set[0][0]
+        return False, "Invalid login: user does not exist"
+    retrieved_hash = result_set[0][3]
     retrieved_salt = retrieved_hash[7:29] #.decode('utf-8')
     password_hash = retrieved_hash[29:]
 
     password_matches = bcrypt.checkpw(password_input.encode('utf-8'), retrieved_hash.encode('utf-8'))
     read_conn.close()
+
     if password_matches:
-        return 'Valid login'
+        return True, result_set[0]
     else:
-        return 'Incorrect login'
+        return False, 'Incorrect login'
 
 def create_account(email_input, username_input, password_input, confirm_input):
     cursor,write_conn = setup_cursor("write")
@@ -60,7 +61,8 @@ def login_account(email_input, username_input, password_input, confirm_input):
         # return False
         return 'Account with that email already exists!'
 
-    sanitize_info(email_input, username_input, password_input)
+    passed, msg = sanitize_info(email_input, username_input, password_input)
+    if not passed: return msg
 
     # checks if the passwords match, if not return error msg
     if password_input != confirm_input:
@@ -80,10 +82,14 @@ def login_account(email_input, username_input, password_input, confirm_input):
     return 'Created user or something'
 
 def sanitize_info(email_input, username_input, password_input):
-    #check length
-    #check for disallowed characters
-    #print("will finish this later")
-    pass
+    if not re.match(r'[^@]+@[^@]+\.[^@]+', email_input):
+        return False, 'Invalid email address!'
+    elif not re.match(r'[A-Za-z0-9]+', username_input):
+        return False, 'Username must contain only characters and numbers!'
+    elif not username or not password or not email:
+        return False, 'Please fill out the form!'
+    
+    return True, None
 
 def add_user_preference(current_user, tagList):
     cursor,write_conn = setup_cursor("write")
