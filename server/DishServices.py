@@ -2,7 +2,6 @@ import mariadb
 from DatabaseServices import setup_cursor
 
 def getMenuItems(requested_date, restaurant_name):
-
     cursor, read_conn = setup_cursor("read")
     cursor.execute("SELECT menuItems.dish_id, dishes.name FROM menuItems  INNER JOIN dishes ON menuItems.dish_id = dishes.id WHERE menuItems.restaurant_id = 1 AND menuItems.date = ?;", (requested_date,))
     result_set = cursor.fetchall() 
@@ -59,8 +58,16 @@ def selectDishesExcludingTags(tagList):
 # WHERE dishInfo.tag_name = ?;
 # SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = ?;
 
+def selectMenuItemsWithUserPreferences(whitelist, blacklist, dining_hall):
+    if not whitelist and blacklist:
+        return selectMenuItemsExcludingTags(blacklist, dining_hall)
+    elif whitelist and not blacklist:
+        return selectMenuItemsIncludingTags(whitelist, dining_hall)
+
     
-def selectMenuItemsBasedOnTags(tagList, dining_hall):
+    print("does something")
+    
+def selectMenuItemsIncludingTags(tagList, dining_hall):
     baseQuery = "SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id"
     whereClause = " WHERE dishInfo.tag_name = ?"
     cursor, read_conn = setup_cursor("read")
@@ -121,7 +128,7 @@ def selectMenuItemsExcludingTags(tagList, dining_hall):
 def main():
     getMenuItems("something", "restaurant_name")
     selectDishesBasedOnTags(("tag", "tag1", "tag2", "tag3"))
-    selectMenuItemsBasedOnTags(("tag", "tag1", "tag2", "tag3"))
+    selectMenuItemsIncludingTags(("tag", "tag1", "tag2", "tag3"))
 
 if __name__ == "__main__":
     main()
