@@ -104,7 +104,6 @@ def add_user_preferences(current_user, whitelist, blacklist):
 
     return "Preferences updated!"
 
-
 def get_user_preferences(current_user):
     cursor, read_conn = setup_cursor("read")
     whitelistQuery = "SELECT tag_name FROM userPreferences WHERE exclude = false AND user_id = ?"
@@ -125,6 +124,19 @@ def get_user_preferences(current_user):
     # print()
     # print(blacklist_result_set)
     return isolate_tag_names(whitelist_result_set, blacklist_result_set)
+
+def delete_user_preference(current_user):
+    cursor,write_conn = setup_cursor("write")
+    delete_query = "DELETE FROM userPreferences WHERE user_id = ?"
+
+    retrieved_id = getUserId(current_user)
+    if not retrieved_id:
+        return False, "Invalid user"
+
+    cursor.execute(delete_query, (retrieved_id,))
+    write_conn.commit()
+    return True, "Preferences cleared!"
+
 
 def isolate_tag_names(whitelist_result_set, blacklist_result_set):
     
