@@ -1,22 +1,26 @@
 import bcrypt
-from server.DatabaseServices import setup_cursor
+import re
+from DatabaseServices import setup_cursor
 
 # ===== WORKING =====
-def verify_password(username_input, password_input):
+def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
-    cursor.execute("SELECT password FROM users WHERE username=?", (username_input,))
+    cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
     result_set = cursor.fetchall()
 
-    if result_set==None or not result_set: return "Invalid login: user does not exist"
-
-    retrieved_hash = result_set[0][0]
+    if result_set==None or not result_set: 
+        return False, "Invalid login: user does not exist"
+    retrieved_hash = result_set[0][3]
+    # retrieved_salt = retrieved_hash[7:29] #.decode('utf-8')
+    # password_hash = retrieved_hash[29:]
 
     password_matches = bcrypt.checkpw(password_input.encode('utf-8'), retrieved_hash.encode('utf-8'))
     read_conn.close()
+
     if password_matches:
-        return 'Valid login'
+        return True, result_set[0]
     else:
-        return 'Incorrect login'
+        return False, 'Incorrect login'
 
 def create_account(email_input, username_input, password_input, confirm_input):
     cursor,write_conn = setup_cursor("write")
@@ -55,11 +59,12 @@ def sanitize_info(email_input, username_input, password_input):
     elif len(password_input) < 8:
         return False, "Password cannot be less than 8 characters long"
 
-    disallowed_characters = ['\0', '\n', '--']
-    for dis_char in disallowed_characters:
-        if dis_char in password_input:
-            return "Password contains disallowed character"
-        
+    if not re.match(r'[^@]+@[^@]+\.[^@]+', email_input):
+        return False, 'Invalid email address!'
+    elif not re.match(r'[A-Za-z0-9]+', username_input):
+        return False, 'Username must contain only characters and numbers!'
+    elif not username_input or not password_input or not email_input:
+        return False, 'Please fill out the form!'
     return "Valid input"
 
 def getUserId(current_user):
@@ -70,25 +75,29 @@ def getUserId(current_user):
 
     if not result_set: #or if result set is greater than 1
         return None
-    
+
     read_conn.close()
-    return result_set[0]
+    return result_set[0][0]
 
-def add_user_preference(current_user, tagList):
+def synthesize_whitelist(include_list, diet_list):
+    full_include_list = include_list + diet_list
+    return full_include_list
+
+def add_user_preferences(current_user, whitelist, blacklist):
     cursor,write_conn = setup_cursor("write")
-    baseQuery = "INSERT INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)"
+    whitelist_query = "INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)"
+    blacklist_query = "INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)"
 
-    cursor.execute("SELECT id FROM users WHERE username = ?", (current_user,))
-    result_set = cursor.fetchall()
+    user_id = getUserId(current_user)
 
-    if not result_set:
+    if user_id is None:
         return "ERROR: User does not exist"
 
-    print(result_set[0])
-    user_id = result_set[0]
+    for tag in whitelist:
+        cursor.execute(whitelist_query, (user_id, tag, 0))
 
-    for tag in tagList:
-        cursor.execute(baseQuery, (user_id, tag))
+    for tag in blacklist:
+        cursor.execute(blacklist_query, (user_id, tag, 1))
 
     write_conn.commit()
     write_conn.close()
@@ -112,15 +121,28 @@ def get_user_preferences(current_user):
     blacklist_result_set = cursor.fetchall()
 
     read_conn.close()
-    print(whitelist_result_set)
-    print()
-    print(blacklist_result_set)
-    return whitelist_result_set, blacklist_result_set
+    # print(whitelist_result_set)
+    # print()
+    # print(blacklist_result_set)
+    return isolate_tag_names(whitelist_result_set, blacklist_result_set)
+
+def isolate_tag_names(whitelist_result_set, blacklist_result_set):
+    
+    whitelist = []
+    blacklist = []
+
+    for result_tuple in whitelist_result_set:
+        whitelist.append(result_tuple[0])
+
+    for result_tuple in blacklist_result_set:
+        blacklist.append(result_tuple[0])
+
+    return whitelist, blacklist
 
 def main():
     # create_account("testemail@gmail.com", "testUser", "testpassword")
     print("hi")
-    print(verify_password("testUser", "testpassword"))
+    print(authenticate_account("testUser", "testpassword"))
 
 if __name__ == "__main__":
     main()

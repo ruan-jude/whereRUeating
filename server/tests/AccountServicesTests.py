@@ -3,6 +3,7 @@ import unittest
 import sys
 from unittest import mock
 import constants
+import mariadb
 
 sys.path.insert(1, constants.PATH_TO_MODULES)
 print(sys.path)
@@ -13,13 +14,13 @@ from DatabaseServices import setup_cursor
 class TestAccountServices(unittest.TestCase):
     
     def test_verify_password(self):
-        self.assertEqual(verify_password("doesnotexist", "passwordorsomething"), "Invalid login: user does not exist", "User should not exist")
+        self.assertEqual(authenticate_account("doesnotexist", "passwordorsomething"), "Invalid login: user does not exist", "User should not exist")
         
     def test_verify_password_correct_login(self):
-        self.assertEqual(verify_password("testUser", "testpassword"), "Valid login", "Login should be valid")
+        self.assertEqual(authenticate_account("testUser", "testpassword"), "Valid login", "Login should be valid")
 
     def test_verify_password_wrong_password(self):
-        self.assertEqual(verify_password("testUser", "password"), "Incorrect login", "Password should be wrong")
+        self.assertEqual(authenticate_account("testUser", "password"), "Incorrect login", "Password should be wrong")
 
     def test_create_account_user_already_exists(self):
         self.assertEqual(create_account("testemail@gmail.com", "testUser", "somepassword", "somepassword"), "Account with that email already exists!", "Email should be used for account already")

@@ -1,3 +1,8 @@
+import sys
+
+# CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
+sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
+
 import os
 from server.AccountServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -6,6 +11,7 @@ template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
 
+print(app.template_folder)
 @app.route('/', methods=['GET'])
 def home():
     return render_template('Home.html')
@@ -59,7 +65,26 @@ def search():
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-	return render_template('UserSettings.html')
+    current_user = session['username']
+    user_whitelist, user_blacklist = get_user_preferences(current_user)
+    data = user_whitelist + user_blacklist
+
+    #pass this into render_template('UserSettings.html', data=user_preferences)
+   
+    if request.method == 'GET' and current_user:
+        return render_template('UserSettings.html', data=data)
+    elif request.method == 'GET':
+        return render_template('Login.html')
+    elif request.method == 'POST':
+        tag_exclude_list = request.form.getlist('tag_exclude')
+        include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+
+        res = add_user_preferences(current_user, include_list, tag_exclude_list)
+        
+        user_whitelist, user_blacklist = get_user_preferences(current_user)
+        data = user_whitelist + user_blacklist
+        return render_template('UserSettings.html', data=data)
+
 
 @app.route('/Home/logout')
 def logout():

@@ -1,4 +1,3 @@
-import time
 import datetime
 
 busy_class_end_times = [datetime.time(11,40,0), datetime.time(13,20, 0), datetime.time(15,20,0)]

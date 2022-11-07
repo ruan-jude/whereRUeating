@@ -10,7 +10,7 @@ def setup_cursor(mode):
         db_pwd = ServerConstants.READER_PASSWORD
         #print("establishing read connection with db reader")
     elif mode == "write":
-        db_user = ServerConstants.WRITER_PASSWORD
+        db_user = ServerConstants.WRITER_USERNAME
         db_pwd = ServerConstants.WRITER_PASSWORD
     elif mode == "test":
         db_user = ServerConstants.TESTING_USERNAME
@@ -25,7 +25,7 @@ def setup_cursor(mode):
             database = "testDB"
         )
         conn.autocommit = False
-        
+
     except mariadb.Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")
     
@@ -35,6 +35,7 @@ def setup_cursor(mode):
 
 def main():
     print("Running db_services.py")
+    setup_cursor("write")
 
 if __name__ == "__main__":
     main()
