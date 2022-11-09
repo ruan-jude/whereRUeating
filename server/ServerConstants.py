@@ -7,7 +7,9 @@
 READER_USERNAME = "db_reader"
 WRITER_USERNAME = "db_writer"
 TESTING_USERNAME = "db_unit_tester_985"
+USER_PREFERENCE_USERNAME = "up_manager"
 
 READER_PASSWORD = "prometheus2007"
 WRITER_PASSWORD = "deaconblackfire1988"
 TESTING_PASSWORD = "rgbrcm20220812"
+USER_PREFERENCE_PASSWORD = "selectionforsocietalsanity2001"

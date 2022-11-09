@@ -1,10 +1,11 @@
 import sys
-
 # CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
 sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
 
 import os
+import datetime
 from server.AccountServices import *
+from server.DishServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 template_dir = os.getcwd() + '/client/'
@@ -61,15 +62,18 @@ def create():
 
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
-	return render_template('Search.html')
+
+    if request.method == 'GET':
+        return render_template('Search.html')
+    elif request.method == 'POST':
+
+        print("Searching...")
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
     current_user = session['username']
     user_whitelist, user_blacklist = get_user_preferences(current_user)
     data = user_whitelist + user_blacklist
-
-    #pass this into render_template('UserSettings.html', data=user_preferences)
    
     if request.method == 'GET' and current_user:
         return render_template('UserSettings.html', data=data)
@@ -79,12 +83,38 @@ def userSettings():
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
 
+        clear_user_preferences(current_user)
         res = add_user_preferences(current_user, include_list, tag_exclude_list)
         
         user_whitelist, user_blacklist = get_user_preferences(current_user)
         data = user_whitelist + user_blacklist
         return render_template('UserSettings.html', data=data)
 
+@app.route('/Menu/', methods=['GET', 'POST'])
+def menu():
+    if request.method == 'GET':
+        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", "breakfast"),
+                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", "breakfast"),
+                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", "breakfast"),
+                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", "breakfast")
+                }
+        return render_template('Menu.html', data=data)
+    elif request.method == 'POST':
+        meal_time = request.form['submit_button']
+        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", meal_time),
+                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", meal_time),
+                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", meal_time),
+                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
+                }
+        return render_template('Menu.html', data=data)
+    elif request.method == 'POST' and request.form.get['apply_filters'] == 'apply_filters_true':
+        meal_time = request.form['submit_button']
+        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", meal_time),
+                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", meal_time),
+                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", meal_time),
+                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
+                }
+        return render_template('Menu.html', data=data)
 
 @app.route('/Home/logout')
 def logout():

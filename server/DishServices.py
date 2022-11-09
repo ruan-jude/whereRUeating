@@ -1,5 +1,5 @@
 import mariadb
-from DatabaseServices import setup_cursor
+from DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 from AccountServices import get_user_preferences
 
 #TODO: Finish this later
@@ -7,17 +7,20 @@ def searchMenuItems(search_term, current_user):
     whitelist, blacklist = get_user_preferences(current_user)
 
 
-def getMenuItems(requested_date, restaurant_name):
+def getMenuItems(requested_date, restaurant_name, meal_time):
     cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT menuItems.dish_id, dishes.name FROM menuItems  INNER JOIN dishes ON menuItems.dish_id = dishes.id WHERE menuItems.restaurant_id = 1 AND menuItems.date = ?;", (requested_date,))
+    query = """SELECT dishes.name, menuItems.date, menuItems.meal_time 
+            FROM menuItems 
+            INNER JOIN dishes ON menuItems.dish_id = dishes.id 
+            INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
+            WHERE restaurants.name = ? AND menuItems.date = ? AND menuItems.meal_time = ?"""
+    cursor.execute(query, (restaurant_name, requested_date, meal_time))
     result_set = cursor.fetchall() 
 
-    print(result_set)
-    for row in result_set:
-        print(row)
+    isolated_dish_names = isolate_first_value_from_tuple(result_set)
 
     read_conn.close()
-    return result_set
+    return isolated_dish_names
 
 def selectDishesBasedOnTags(tagList):
     #SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = ''
@@ -57,39 +60,50 @@ def selectDishesExcludingTags(tagList):
     read_conn.close()
     return result_set
 
-
 # SELECT dishes.name FROM dishes 
 # INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id 
 # INNER JOIN menuItems ON menuItems.dish_id = dishes.id
 # WHERE dishInfo.tag_name = ?;
 # SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = ?;
 
-def selectMenuItemsWithUserPreferences(current_user, requested_date):
-    user_whitelist, user_blacklist = get_user_preferences()
+def selectMenuItemsWithUserPreferences(current_user, requested_date, meal_time):
+    user_whitelist, user_blacklist = get_user_preferences(current_user)
     cursor, read_conn = setup_cursor("read")
 
     # [brower, livingston, busch, nielson]
     # dining_hall_ids = [1, 2, 3, 4] 
     # These magic numbers aren't good practice
     # not proud of this mess here
-    brower_query = selectMenuItemsIncludingTags(user_whitelist, 1, requested_date) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 1, requested_date)
-    livingston_query = selectMenuItemsIncludingTags(user_whitelist, 2, requested_date) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 2, requested_date)
-    busch_query = selectMenuItemsIncludingTags(user_whitelist, 3, requested_date) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 3, requested_date)
-    nielson_query = selectMenuItemsIncludingTags(user_whitelist, 4, requested_date) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 4, requested_date)
+    brower_query = selectMenuItemsIncludingTags(user_whitelist, 1, requested_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 1, requested_date, meal_time)
+    livingston_query = selectMenuItemsIncludingTags(user_whitelist, 2, requested_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 2, requested_date, meal_time)
+    busch_query = selectMenuItemsIncludingTags(user_whitelist, 3, requested_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 3, requested_date, meal_time)
+    nielson_query = selectMenuItemsIncludingTags(user_whitelist, 4, requested_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, 4, requested_date, meal_time)
 
-    full_brower_list = cursor.execute(brower_query)
-    full_livingston_list = cursor.execute(livingston_query)
-    full_busch_list = cursor.execute(busch_query)
-    full_nielson_list = cursor.execute(nielson_query)
+    cursor.execute(brower_query)
+    full_brower_list = cursor.fetchall().isolate_first_value_from_tuple()
 
-    #NOTE GET THE INTERSECT OF THE TWO
+    cursor.execute(livingston_query)
+    full_livingston_list = cursor.fetchall().isolate_first_value_from_tuple()
+
+    cursor.execute(busch_query)
+    full_busch_list = cursor.fetchall().isolate_first_value_from_tuple()
+
+    cursor.execute(nielson_query)
+    full_nielson_list = cursor.fetchall().isolate_first_value_from_tuple()
+
     full_result_set = [full_brower_list, full_livingston_list, full_busch_list, full_nielson_list]
 
-    # print("does something")
+    read_conn.close()
     return full_result_set
 
-def selectMenuItemsIncludingTags(tagList, dining_hall, requested_date):
-    baseQuery = f"SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name, restaurants.name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id WHERE menuItems.restaurant_id = {dining_hall} AND menuItems.date = {requested_date} AND ("
+def selectMenuItemsIncludingTags(tagList, dining_hall, requested_date, meal_time):
+    baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
+        FROM menuItems 
+        INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
+        INNER JOIN dishes ON menuItems.dish_id = dishes.id 
+        INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
+        WHERE restaurants.name = {dining_hall} AND menuItems.date = {requested_date} 
+        AND menuItems.meal_time = {meal_time} AND ("""
 
     # I'm not proud of this: Passing in raw strings like this to queries is not a good idea.
     # Always parameterize queries with inputs like this.   
@@ -113,8 +127,14 @@ def selectMenuItemsIncludingTags(tagList, dining_hall, requested_date):
     # read_conn.close()
     return baseQuery
 
-def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date):
-    baseQuery = "SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name, restaurants.name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id WHERE menuItems.restaurant_id = ? AND menuItems.date = ? AND ("
+def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date, meal_time):
+    baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
+        FROM menuItems 
+        INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
+        INNER JOIN dishes ON menuItems.dish_id = dishes.id 
+        INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
+        WHERE restaurants.name = {dining_hall} AND menuItems.date = {requested_date} 
+        AND menuItems.meal_time = {meal_time} AND ("""
     # whereClause = "dishInfo.tag_name <> ?"
     # cursor, read_conn = setup_cursor("read")
 

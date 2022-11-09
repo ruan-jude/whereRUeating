@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>whereRUeating</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+</head>
+<body>
+    <div class="topnav">
+        <a href="{{ url_for("home")}}">Home</a>
+        <a class="active" href="{{ url_for("search")}}"><b>Search Now!</b></a>
+        <a href="{{ url_for("login")}}">Login Page</a>
+        <a href="{{ url_for("create")}}">Create Account</a>
+        <a href="{{ url_for("userSettings")}}">User Settings</a>
+    </div>
+
+    <form method = "post">
+        <input type="submit" name="submit_button" value="Breakfast">
+        <input type="submit" name="submit_button" value="Lunch">
+        <input type="submit" name="submit_button" value="Dinner">
+        <input type="checkbox" name="apply_filters" value="apply_filters_true"/>
+    </form>
+
+    <h1>Livingston</h1>
+        <ul>
+            {% for item in data['Livingston'] %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+
+    <h1>Busch</h1>
+        <ul>
+            {% for item in data['Busch'] %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+    <h1>Brower</h1>
+        <ul>
+            {% for item in data['Brower'] %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+    <h1>Nielson</h1>
+        <ul>
+            {% for item in data['Nielson'] %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+</body>
+</html>

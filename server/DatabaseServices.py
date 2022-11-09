@@ -15,6 +15,9 @@ def setup_cursor(mode):
     elif mode == "test":
         db_user = ServerConstants.TESTING_USERNAME
         db_pwd = ServerConstants.TESTING_PASSWORD
+    elif mode == "user_preferences":
+        db_user = ServerConstants.USER_PREFERENCE_USERNAME
+        db_pwd = ServerConstants.USER_PREFERENCE_PASSWORD
     
     try:
         conn = mariadb.connect(
@@ -32,6 +35,13 @@ def setup_cursor(mode):
     cursor = conn.cursor()
     return cursor,conn    
 
+def isolate_first_value_from_tuple(result_set):
+    isolated_set = []
+
+    for result_tuple in result_set:
+        isolated_set.append(result_tuple[0])
+
+    return isolated_set
 
 def main():
     print("Running db_services.py")

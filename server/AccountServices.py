@@ -1,8 +1,7 @@
 import bcrypt
 import re
-from DatabaseServices import setup_cursor
+from DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 
-# ===== WORKING =====
 def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
     cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
@@ -11,8 +10,6 @@ def authenticate_account(username_input, password_input):
     if result_set==None or not result_set: 
         return False, "Invalid login: user does not exist"
     retrieved_hash = result_set[0][3]
-    # retrieved_salt = retrieved_hash[7:29] #.decode('utf-8')
-    # password_hash = retrieved_hash[29:]
 
     password_matches = bcrypt.checkpw(password_input.encode('utf-8'), retrieved_hash.encode('utf-8'))
     read_conn.close()
@@ -120,10 +117,19 @@ def get_user_preferences(current_user):
     blacklist_result_set = cursor.fetchall()
 
     read_conn.close()
-    # print(whitelist_result_set)
-    # print()
-    # print(blacklist_result_set)
     return isolate_tag_names(whitelist_result_set, blacklist_result_set)
+
+def clear_user_preferences(current_user):
+    cursor, delete_conn = setup_cursor("user_preferences")
+    baseQuery = "DELETE FROM userPreferences WHERE user_id = ?"
+
+    retrieved_id = getUserId(current_user)
+    if not retrieved_id:
+        return None
+
+    cursor.execute(baseQuery, (retrieved_id,))
+    delete_conn.commit()
+    delete_conn.close()
 
 def delete_user_preference(current_user):
     cursor,write_conn = setup_cursor("write")
@@ -139,17 +145,7 @@ def delete_user_preference(current_user):
 
 
 def isolate_tag_names(whitelist_result_set, blacklist_result_set):
-    
-    whitelist = []
-    blacklist = []
-
-    for result_tuple in whitelist_result_set:
-        whitelist.append(result_tuple[0])
-
-    for result_tuple in blacklist_result_set:
-        blacklist.append(result_tuple[0])
-
-    return whitelist, blacklist
+    return isolate_first_value_from_tuple(whitelist_result_set), isolate_first_value_from_tuple(blacklist_result_set)
 
 def main():
     # create_account("testemail@gmail.com", "testUser", "testpassword")
