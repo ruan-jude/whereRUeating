@@ -1,4 +1,5 @@
 import sys
+import atexit
 
 # CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
 sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
@@ -10,13 +11,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
+#session.clear()
 
-print(app.template_folder)
 @app.route('/', methods=['GET'])
+@app.route('/Home/', methods=['GET'])
 def home():
     return render_template('Home.html')
 
-@app.route('/UserHome/', methods=['GET'])
+@app.route('/Home/<username>/', methods=['GET'])
 def userHome():
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -65,16 +67,19 @@ def search():
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-    current_user = session['username']
+    print(session)
+    print('username' in session)
+    current_user = session['username'] if 'username' in session else None
+    print(current_user)
+    if current_user == None: 
+        print("here")
+        return redirect(url_for('login'))
+
+    #pass this into render_template('UserSettings.html', data=user_preferences)x
     user_whitelist, user_blacklist = get_user_preferences(current_user)
     data = user_whitelist + user_blacklist
-
-    #pass this into render_template('UserSettings.html', data=user_preferences)
-   
-    if request.method == 'GET' and current_user:
+    if request.method == 'GET':
         return render_template('UserSettings.html', data=data)
-    elif request.method == 'GET':
-        return render_template('Login.html')
     elif request.method == 'POST':
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
@@ -94,6 +99,8 @@ def logout():
    session.pop('username', None)
    # Redirect to login page
    return redirect(url_for('home'))
+
+
 
 if __name__ == '__main__':
     app.run(host='172.16.122.27', port='8080')

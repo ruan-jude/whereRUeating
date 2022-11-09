@@ -144,7 +144,6 @@ def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date):
 # WHERE dishInfo.tag_name = ?;
 # SELECT menuItems.dish_id, dishes.name, dishInfo.tag_name FROM menuItems INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id INNER JOIN dishes ON menuItems.dish_id = dishes.id WHERE dishInfo.tag_name = ?;
 
-
 def main():
     getMenuItems("something", "restaurant_name")
     selectDishesBasedOnTags(("tag", "tag1", "tag2", "tag3"))

@@ -1,8 +1,7 @@
 import bcrypt
 import re
-from DatabaseServices import setup_cursor
+from server.DatabaseServices import setup_cursor
 
-# ===== WORKING =====
 def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
     cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))

@@ -10,7 +10,7 @@
 			<a href="{{ url_for("search") }}"><b>Search Now!</b></a>
 			<a href="{{ url_for("userSettings") }}">User Settings</a>
 		</div>
-		<div>
+		<div class="container">
 			{% block content %}
 				<p>Welcome back, {{ username }}!</p>
 			{% endblock %}
