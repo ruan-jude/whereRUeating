@@ -17,7 +17,8 @@
         <input type="submit" name="submit_button" value="Breakfast">
         <input type="submit" name="submit_button" value="Lunch">
         <input type="submit" name="submit_button" value="Dinner">
-        <input type="checkbox" name="apply_filters" value="apply_filters_true"/>
+        <input type="checkbox" id = "user_preference" name="apply_filters" value="apply_filters_true" {% if data['checked'] %} checked {% endif %}/>
+        <label for="user_preference">Apply User Preferences?</label>
     </form>
 
     <h1>Livingston</h1>
