@@ -1,6 +1,6 @@
 import mariadb
-from DatabaseServices import setup_cursor, isolate_first_value_from_tuple
-from AccountServices import get_user_preferences
+from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
+from server.AccountServices import get_user_preferences
 
 #TODO: Finish this later
 def searchMenuItems(search_term, current_user):

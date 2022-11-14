@@ -13,8 +13,7 @@
     </div>
 
     <div>
-        <!--DISPLAY USERNAME HERE WHEN POSSIBLE, in the format of "You are currently logged in as [Name]"--->
-        <h1>Default Preferences</h1>
+        <h1>Meal Preferences</h1>
         <h2>You are current logged in as {{ username }} </h2>
         <form method = "post">
             <fieldset>
@@ -73,6 +72,12 @@
                 <button type="submit">Save Changes</button>
             </div>
         </form>
+        <div class="container" style="padding:50px">
+			{% for message in get_flashed_messages() %}
+                <h2>Server Message</h2>
+			    <p>{{message}}</p>
+			{% endfor %}
+		</div>
     </div>
 </body>
 </html>

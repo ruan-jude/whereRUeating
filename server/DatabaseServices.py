@@ -1,5 +1,5 @@
 import mariadb
-import ServerConstants
+import server.ServerConstants as ServerConstants
 
 def setup_cursor(mode):
     db_user = ""
@@ -35,17 +35,10 @@ def setup_cursor(mode):
     cursor = conn.cursor()
     return cursor,conn    
 
+'''
+Extracts only the first values from a tuple
+FUNCTIONING
+'''
 def isolate_first_value_from_tuple(result_set):
-    isolated_set = []
+    return [tup[0] for tup in result_set]
 
-    for result_tuple in result_set:
-        isolated_set.append(result_tuple[0])
-
-    return isolated_set
-
-def main():
-    print("Running db_services.py")
-    setup_cursor("write")
-
-if __name__ == "__main__":
-    main()

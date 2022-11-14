@@ -1,9 +1,4 @@
-import sys
-# CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
-sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
-
-import os
-import datetime
+import os, datetime
 from server.AccountServices import *
 from server.DishServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -12,18 +7,22 @@ template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
 
-print(app.template_folder)
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('Home.html')
-
-@app.route('/UserHome/', methods=['GET'])
-def userHome():
-    # Check if user is loggedin
+    # if user is logged in, go to user home page
     if 'loggedin' in session:
-        # User is loggedin show them the home page
-        return render_template('UserHome.html', username=session['username'])
-    # User is not loggedin redirect to login page
+        return redirect(url_for("userHome", username=session['username']))
+    
+    # else, go to generic home page
+    return render_template('Home.html', username="")
+
+@app.route('/Home/<username>/', methods=['GET'])
+def userHome(username):
+    # if user is logged in, render user home page
+    if 'loggedin' in session and username == session['username']:
+        return render_template('Home.html', username=session['username'])
+
+    # else, go to generic home page
     return redirect(url_for('home'))
 
 @app.route('/Login/', methods=['GET', 'POST'])
@@ -31,66 +30,76 @@ def login():
     if request.method == 'POST':
         username = request.form.get('user')
         password = request.form.get('pass')
-
         res, msg = authenticate_account(username, password)
+
+        # if account is not authenticated, throw error on login page
         if res != True:
             flash(msg)
-            return redirect(url_for("home"))
+            return redirect(url_for("login"))
         
+        # else, login to user home page
         session['loggedin'] = True
         session['id'] = msg[0]
         session['username'] = msg[1]
-        return redirect(url_for("userHome"))
+        return redirect(url_for("userHome", username=session['username']))
 
     return render_template('Login.html')
 
 @app.route('/CreateAccount/', methods=['GET', 'POST'])
 def create():
     if request.method == 'POST':
-        # collecting form data
         email = request.form.get('email')
         user = request.form.get('user')
         pass1 = request.form.get('pass1')
         pass2 = request.form.get('pass2')
+        res, msg = create_account(email, user, pass1, pass2)
 
-        # inserts data into the database
-        res = create_account(email, user, pass1, pass2)
-        flash(res)
-        return redirect(url_for("home"))
+        # if invalid account details inputed, throw error on create page
+        if res != True:
+            flash(msg)
+            return redirect(url_for("create"))
+        
+        # else, login to user home page
+        session['loggedin'] = True
+        session['id'] = msg[0]
+        session['username'] = msg[1]
+        return redirect(url_for("userHome", username=session['username']))
 
     return render_template('CreateAccount.html')
 
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
-
-    if request.method == 'GET':
-        return render_template('Search.html')
-    elif request.method == 'POST':
-
+    if request.method == 'POST':
         print("Searching...")
+        return
+    
+    # if user is logged in, pass username
+    if 'loggedin' in session:
+        return render_template('Search.html', username=session['username'])
+
+    # else, pass empty
+    return render_template('Search.html', username="")
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-    current_user = session['username']
-    user_whitelist, user_blacklist = get_user_preferences(current_user)
+    current_user_id = session['id']
+    user_whitelist, user_blacklist = get_user_preferences(current_user_id)
     data = user_whitelist + user_blacklist
    
-    if request.method == 'GET' and current_user:
-        return render_template('UserSettings.html', data=data)
-    elif request.method == 'GET':
-        return render_template('Login.html')
+    if request.method == 'GET':
+        return render_template('UserSettings.html', data=data, username=session['username'])
     elif request.method == 'POST':
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
 
-        print(include_list)
-
-        clear_user_preferences(current_user)
-        res = add_user_preferences(current_user, include_list, tag_exclude_list)
+        clear_user_preferences(current_user_id)
+        add_user_preferences(current_user_id, include_list, tag_exclude_list)
         
-        user_whitelist, user_blacklist = get_user_preferences(current_user)
+        user_whitelist, user_blacklist = get_user_preferences(current_user_id)
         data = user_whitelist + user_blacklist
-        return render_template('UserSettings.html', data=data)
+
+        flash('Updated preferences for %s!' % (session['username'],))
+        return render_template('UserSettings.html', data=data, username=session['username'])
 
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
@@ -121,8 +130,6 @@ def menu():
                 "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
                 }
         return render_template('Menu.html', data=data)
-
-    
 
 @app.route('/Home/logout')
 def logout():
