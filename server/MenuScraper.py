@@ -16,7 +16,8 @@ CampusMenuURLs = [LiviMenuURL, BuschMenuURL, CAMenuURL, CDMenuURL]
 '''
 Collects the weekly menu for the specified dining hall
 '''
-def getDiningHallInfo(URLprefix: str = 'http://menuportal.dining.rutgers.edu/FoodPro/') -> None:
+def getDiningHallInfo(diningHallURL: str, URLprefix: str = 'http://menuportal.dining.rutgers.edu/FoodPro/') -> None:
+    results = dict()
     diningHallNames = {'Livingston':'2', 'Busch':'3', 'Nielson':'4', 'Brower':'1'}
 
 	# iterates through each campus food site
@@ -129,7 +130,7 @@ def clearMenuItemsTable():
 
 def main():
     clearMenuItemsTable()
-    getDiningHallInfo()
+    getDiningHallInfo(CAMenuURL)
 
 if __name__ == "__main__":
     main()

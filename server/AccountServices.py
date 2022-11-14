@@ -1,8 +1,7 @@
 import bcrypt
 import re
-from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
+from DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 
-# ===== WORKING =====
 def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
     cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
@@ -26,15 +25,16 @@ def create_account(email_input, username_input, password_input, confirm_input):
     # database call that searches if someone already has that login
     cursor.execute("SELECT email FROM users WHERE email=?", (email_input,))
     if cursor.rowcount != 0:
-        return False, 'Account with that email already exists!'
+        return 'Account with that email already exists!'
 
     check_input = sanitize_info(email_input, username_input, password_input)
-    if check_input != True:
+
+    if check_input != "Valid input":
         return check_input
 
     # checks if the passwords match, if not return error msg
     if password_input != confirm_input:
-        return False, 'Passwords do not match!'
+        return 'Passwords do not match!'
 
     # hashes the password
     salt = bcrypt.gensalt()
@@ -44,17 +44,7 @@ def create_account(email_input, username_input, password_input, confirm_input):
     cursor.execute("INSERT INTO users (email, username, password) VALUES (?,?,?)", (email_input, username_input, hash))
     write_conn.commit()
     write_conn.close()
-
-    # gets the id of the created user
-    cursor,read_conn = setup_cursor("read")
-    cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
-    result_set = cursor.fetchall()
-
-    if result_set==None or not result_set: 
-        return False, "Invalid login: user does not exist"
-    read_conn.close()
-
-    return True, result_set
+    return 'Created user or something'
 
 # Should probably make sure everything is alphanumeric or an allowed special char here
 def sanitize_info(email_input, username_input, password_input):
@@ -72,7 +62,7 @@ def sanitize_info(email_input, username_input, password_input):
         return False, 'Username must contain only characters and numbers!'
     elif not username_input or not password_input or not email_input:
         return False, 'Please fill out the form!'
-    return True
+    return "Valid input"
 
 def getUserId(current_user):
     cursor, read_conn = setup_cursor("read")

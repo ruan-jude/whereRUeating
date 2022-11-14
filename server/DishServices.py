@@ -1,6 +1,6 @@
 import mariadb
-from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
-from server.AccountServices import get_user_preferences
+from DatabaseServices import setup_cursor, isolate_first_value_from_tuple
+from AccountServices import get_user_preferences
 
 #TODO: Finish this later
 def searchMenuItems(search_term, current_user):
@@ -22,52 +22,15 @@ def getMenuItems(requested_date, restaurant_name, meal_time):
     read_conn.close()
     return isolated_dish_names
 
-def selectDishesBasedOnTags(tagList):
-    #SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = '' OR WHERE dishInfo.tag_name = ''
-
-    baseQuery = "SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id"
-    whereClause = " WHERE dishInfo.tag_name = ?"
-    cursor, read_conn = setup_cursor("read")
-
-    for tag in tagList:
-        #print(tag)
-        baseQuery = baseQuery + whereClause
-        if tagList.index(tag) == 0:
-            whereClause = " OR dishInfo.tag_name = ?" 
-
-    #print(baseQuery)
-    cursor.execute(baseQuery, tagList)
-    result_set = cursor.fetchall()
-    print(result_set)
-    read_conn.close()
-    return result_set
-
-def selectDishesExcludingTags(tagList):
-    baseQuery = "SELECT dishes.name FROM dishes INNER JOIN dishInfo ON dishes.id = dishInfo.dish_id"
-    whereClause = " WHERE dishInfo.tag_name <> ?"
-    cursor, read_conn = setup_cursor("read")
-
-    for tag in tagList:
-        #print(tag)
-        baseQuery = baseQuery + whereClause
-        if tagList.index(tag) == 0:
-            whereClause = " AND dishInfo.tag_name <> ?" 
-
-    #print(baseQuery)
-    cursor.execute(baseQuery, tagList)
-    result_set = cursor.fetchall()
-    print(result_set)
-    read_conn.close()
-    return result_set
-
-
 def getMenuItemsWithUserPreferences(current_user, restaurant_name, requested_date, meal_time):
     user_whitelist, user_blacklist = get_user_preferences(current_user)
     cursor, read_conn = setup_cursor("read")
     retrieved_date = isolate_date(requested_date)
-
+    print(user_whitelist)
+    print(user_blacklist)
+    print()
     full_query = selectMenuItemsIncludingTags(user_whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, restaurant_name, retrieved_date, meal_time)
-    #print(full_query)
+    print(full_query)
 
     cursor.execute(full_query)
     result_set = isolate_first_value_from_tuple(cursor.fetchall())
@@ -120,12 +83,11 @@ def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date, meal_time
 
 def isolate_date(raw_date):
     strdate = str(raw_date)
-    print(strdate)
-    return strdate[:9]
+    print(strdate[:11])
+    return strdate[:11]
 
 def main():
     getMenuItems("something", "restaurant_name")
-    selectDishesBasedOnTags(("tag", "tag1", "tag2", "tag3"))
     selectMenuItemsIncludingTags(("tag", "tag1", "tag2", "tag3"))
 
 if __name__ == "__main__":
