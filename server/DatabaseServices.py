@@ -1,5 +1,5 @@
 import mariadb
-import ServerConstants
+import server.ServerConstants as ServerConstants
 
 def setup_cursor(mode):
     db_user = ""
@@ -8,7 +8,6 @@ def setup_cursor(mode):
     if mode == "read":
         db_user = ServerConstants.READER_USERNAME
         db_pwd = ServerConstants.READER_PASSWORD
-        #print("establishing read connection with db reader")
     elif mode == "write":
         db_user = ServerConstants.WRITER_USERNAME
         db_pwd = ServerConstants.WRITER_PASSWORD
@@ -23,9 +22,9 @@ def setup_cursor(mode):
         conn = mariadb.connect(
             user = db_user,
             password = db_pwd,
-            #host="",
             port = 3306,
-            database = "testDB"
+            database = "whereRUeating"
+            #database = "testDB"
         )
         conn.autocommit = False
 
@@ -42,10 +41,3 @@ def isolate_first_value_from_tuple(result_set):
         isolated_set.append(result_tuple[0])
 
     return isolated_set
-
-def main():
-    print("Running db_services.py")
-    setup_cursor("write")
-
-if __name__ == "__main__":
-    main()

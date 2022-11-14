@@ -1,7 +1,3 @@
-import sys
-# CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
-sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
-
 import os
 import datetime
 from server.AccountServices import *
@@ -12,19 +8,13 @@ template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
 
-print(app.template_folder)
 @app.route('/', methods=['GET'])
+@app.route('/Home/', methods=['GET'])
+@app.route('/Home/<username>/', methods=['GET'])
 def home():
-    return render_template('Home.html')
-
-@app.route('/UserHome/', methods=['GET'])
-def userHome():
-    # Check if user is loggedin
-    if 'loggedin' in session:
-        # User is loggedin show them the home page
-        return render_template('UserHome.html', username=session['username'])
-    # User is not loggedin redirect to login page
-    return redirect(url_for('home'))
+    if 'username' not in session:
+        return render_template('Home.html', username='')
+    return render_template('Home.html', username=session['username'])
 
 @app.route('/Login/', methods=['GET', 'POST'])
 def login():
@@ -35,12 +25,12 @@ def login():
         res, msg = authenticate_account(username, password)
         if res != True:
             flash(msg)
-            return redirect(url_for("home"))
+            return redirect(url_for("login"))
         
         session['loggedin'] = True
         session['id'] = msg[0]
         session['username'] = msg[1]
-        return redirect(url_for("userHome"))
+        return redirect(url_for("home"))
 
     return render_template('Login.html')
 
@@ -54,31 +44,36 @@ def create():
         pass2 = request.form.get('pass2')
 
         # inserts data into the database
-        res = create_account(email, user, pass1, pass2)
-        flash(res)
+        res, msg = create_account(email, user, pass1, pass2)
+        if res != True:
+            flash(msg)
+            return redirect(url_for("create"))
+        
+        session['loggedin'] = True
+        session['id'] = msg[0]
+        session['username'] = msg[1]
         return redirect(url_for("home"))
 
     return render_template('CreateAccount.html')
 
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
-
-    if request.method == 'GET':
-        return render_template('Search.html')
-    elif request.method == 'POST':
-
-        print("Searching...")
+	return render_template('Search.html')
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-    current_user = session['username']
+    current_user = session['username'] if 'username' in session else None
+    if current_user == None: 
+        return redirect(url_for('login'))
+
+    #pass this into render_template('UserSettings.html', data=user_preferences)x
     user_whitelist, user_blacklist = get_user_preferences(current_user)
     data = user_whitelist + user_blacklist
+
+    #pass this into render_template('UserSettings.html', data=user_preferences)
    
     if request.method == 'GET' and current_user:
         return render_template('UserSettings.html', data=data)
-    elif request.method == 'GET':
-        return render_template('Login.html')
     elif request.method == 'POST':
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))

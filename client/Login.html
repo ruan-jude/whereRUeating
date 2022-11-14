@@ -11,16 +11,24 @@
 			<a href="{{ url_for("search") }}"><b>Search Now!</b></a>
 			<a class="active" href="{{ url_for("login") }}">Login Page</a>
 			<a href="{{ url_for("create") }}">Create Account</a>
-			<a href="{{ url_for("userSettings") }}">User Settings</a>
 		</div>
     
-    <h1>Login to account.</h1>
-    <form method = "post" action="{{ url_for("login")}}">
-      <label for="user">Username:</label><br>
-      <input type="text" id="user" name="user"><br>
-      <label for="pass">Password:</label><br>
-      <input type="password" id="pass" name="pass"><br><br>
-      <input type="submit" value="Log In">
-  </form>
+    <div class="container">
+      <h1>Login to account</h1>
+      <form method = "post" action="{{ url_for("login")}}">
+          <label for="user">Username:</label><br>
+          <input type="text" id="user" name="user"><br>
+          <label for="pass">Password:</label><br>
+          <input type="password" id="pass" name="pass"><br><br>
+          <input type="submit" value="Log In">
+      </form>
+    </div>
+    <br>
+    <div class="container" style="padding:50px">
+			{% for message in get_flashed_messages() %}
+			<h1>Server response</h1>
+			<p>{{message}}</p>
+			{% endfor %}
+		</div>
   </body>
 </html>
