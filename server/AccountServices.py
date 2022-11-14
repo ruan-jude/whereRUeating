@@ -1,6 +1,6 @@
 import bcrypt
 import re
-from server.DatabaseServices import setup_cursor
+from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 
 # ===== WORKING =====
 def authenticate_account(username_input, password_input):

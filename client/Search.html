@@ -4,26 +4,22 @@
         <title>whereRUeating</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
     </head>
-    {% if username=="" %}
+    
     <body>
+        {% if username=="" %}
         <div class="topnav">
             <a href="{{ url_for("home")}}">Home</a>
             <a class="active" href="{{ url_for("search")}}"><b>Search Now!</b></a>
             <a href="{{ url_for("login")}}">Login Page</a>
             <a href="{{ url_for("create")}}">Create Account</a>
         </div>
-    </body>
-    {% else %}
-    <body>
+        {% else %}
         <div class="topnav">
             <a href="{{ url_for("home")}}">Home</a>
             <a class="active" href="{{ url_for("search")}}"><b>Search Now!</b></a>
             <a href="{{ url_for("userSettings") }}">User Settings</a>
 			<a href="{{ url_for("logout") }}">Logout</a>
         </div>
+        {% endif %}
     </body>
-    {% endif %}
-
-
-
 </html>

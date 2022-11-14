@@ -62,9 +62,8 @@ def search():
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-    current_user = session['username'] if 'username' in session else None
-    if current_user == None: 
-        return redirect(url_for('login'))
+    current_user = session['username']
+    print(session['username'])
 
     #pass this into render_template('UserSettings.html', data=user_preferences)x
     user_whitelist, user_blacklist = get_user_preferences(current_user)
@@ -73,7 +72,7 @@ def userSettings():
     #pass this into render_template('UserSettings.html', data=user_preferences)
    
     if request.method == 'GET' and current_user:
-        return render_template('UserSettings.html', data=data)
+        return render_template('UserSettings.html', data=data, username=current_user)
     elif request.method == 'POST':
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
@@ -85,35 +84,35 @@ def userSettings():
         
         user_whitelist, user_blacklist = get_user_preferences(current_user)
         data = user_whitelist + user_blacklist
-        return render_template('UserSettings.html', data=data)
+        return render_template('UserSettings.html', data=data, username=current_user)
 
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
     if request.method == 'GET':
-        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", "breakfast"),
-                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", "breakfast"),
-                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", "breakfast"),
-                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", "breakfast")
+        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 13), "Livingston DH", "breakfast"),
+                "Busch": getMenuItems(datetime.datetime(2022, 11, 13), "Busch DH", "breakfast"),
+                "Brower": getMenuItems(datetime.datetime(2022, 11, 13), "Brower DH", "breakfast"),
+                "Nielson": getMenuItems(datetime.datetime(2022, 11, 13), "Nielson DH", "breakfast")
                 }
         return render_template('Menu.html', data=data)
 
     elif request.method == 'POST' and request.form.get('apply_filters') == 'apply_filters_true':
         meal_time = request.form['submit_button']
         current_user = session['username']
-        data = {"Livingston" : getMenuItemsWithUserPreferences(current_user, "Livingston DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Busch": getMenuItemsWithUserPreferences(current_user, "Busch DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Brower": getMenuItemsWithUserPreferences(current_user, "Brower DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Nielson": getMenuItemsWithUserPreferences(current_user, "Nielson DH", datetime.datetime(2022, 11, 3), meal_time),
+        data = {"Livingston" : getMenuItemsWithUserPreferences(current_user, "Livingston DH", datetime.datetime(2022, 11, 13), meal_time),
+                "Busch": getMenuItemsWithUserPreferences(current_user, "Busch DH", datetime.datetime(2022, 11, 13), meal_time),
+                "Brower": getMenuItemsWithUserPreferences(current_user, "Brower DH", datetime.datetime(2022, 11, 13), meal_time),
+                "Nielson": getMenuItemsWithUserPreferences(current_user, "Nielson DH", datetime.datetime(2022, 11, 13), meal_time),
                 "checked": True
                 }
         return render_template('Menu.html', data=data)
 
     elif request.method == 'POST':
         meal_time = request.form['submit_button']
-        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", meal_time),
-                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", meal_time),
-                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", meal_time),
-                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
+        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 13), "Livingston DH", meal_time),
+                "Busch": getMenuItems(datetime.datetime(2022, 11, 13), "Busch DH", meal_time),
+                "Brower": getMenuItems(datetime.datetime(2022, 11, 13), "Brower DH", meal_time),
+                "Nielson": getMenuItems(datetime.datetime(2022, 11, 13), "Nielson DH", meal_time)
                 }
         return render_template('Menu.html', data=data)
 
