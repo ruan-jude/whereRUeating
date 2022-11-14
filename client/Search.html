@@ -21,5 +21,67 @@
 			<a href="{{ url_for("logout") }}">Logout</a>
         </div>
         {% endif %}
+
+        <div>
+            <!--DISPLAY USERNAME HERE WHEN POSSIBLE, in the format of "You are currently logged in as [Name]"--->
+            <h1>Search based on preference</h1>
+            <form method = "post">
+                <fieldset>
+                    <legend>Restaurant Type</legend>
+                    <div>
+                        <input type="checkbox" id="dining_hall" name="tag" value="dining_hall"/>
+                        <label for="dining_hall">Dining Hall</label>
+                        <input type="checkbox" id="off_campus" name="tag" value="off_campus"/>
+                        <label for="off_campus">Off-Campus Restaurant</label>
+                        <input type="checkbox" id="takeout_allowed" name="tag" value="takeout"/>
+                        <label for="takeout_allowed">Has Takeout</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Payment</legend>
+                    <div>
+                        <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed"/>
+                        <label for="meal_swipe_allowed">Accepts Meal Swipes</label>
+                        <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed"/>
+                        <label for="ru_express_allowed">Accepts RU Express</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Preferred Diet</legend>
+                    <input type="checkbox" id="vegan" name="diet" value="vegan"/>
+                    <label for="vegan">Vegan</label>
+                    <input type="checkbox" id="vegetarian" name="diet" value="vegetarian"/>
+                    <label for="vegetarian">Vegetarian</label>
+                    <input type="checkbox" id="halal" name="diet" value="halal"/>
+                    <label for="halal">Halal</label>
+                    <input type="checkbox" id="kosher" name="diet" value="kosher"/>
+                    <label for="kosher">Kosher</label>
+                </fieldset>
+                <fieldset>
+                    <legend>Common Products (REMOVE From Search)</legend>
+                    <div>
+                        <input type="checkbox" id="meat" name="tag_exclude" value="meat"/>
+                        <label for="meat">All Meat</label>
+                        <input type="checkbox" id="chicken" name="tag_exclude" value="chicken"/>
+                        <label for="chicken">Chicken</label>
+                        <input type="checkbox" id="pork" name="tag_exclude" value="pork"/>
+                        <label for="pork">Pork</label>
+                        <input type="checkbox" id="beef" name="tag_exclude" value="beef"/>
+                        <label for="beef">Beef and Red Meats</label>
+                        <input type="checkbox" id="seafood" name="tag_exclude" value="seafood"/>
+                        <label for="seafood">Seafood</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="dairy" name="tag_exclude" value="dairy"/>
+                        <label for="dairy">Dairy</label>
+                        <input type="checkbox" id="nuts" name="tag_exclude" value="nuts"/>
+                        <label for="nuts">Nuts</label>
+                    </div>
+                </fieldset>
+                <div>
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+        </div>
     </body>
 </html>
