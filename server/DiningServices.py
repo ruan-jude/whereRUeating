@@ -10,9 +10,7 @@ def check_dining_halls_busy():
         if current_hour >= end_time.hour and current_minute >= end_time.minute and (current_hour - end_time.hour) == 0:
             return "Classes just ended at " + str(end_time) + ", so the dining halls might get busy now."
         elif end_time.hour >= current_hour and end_time.hour - current_hour <= 1: #and (current_minute >= 30) :
-            return "Classes will end soon at " + str(end_time) + ", and the dining halls will get busier."
-
-           
+            return "Classes will end soon at " + str(end_time) + ", and the dining halls will get busier." 
             
 def check_for_events():
     print("doing something now")

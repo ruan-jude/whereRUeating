@@ -1,9 +1,3 @@
-import sys
-import atexit
-
-# CHANGE THIS TO MATCH THE DIRECTORY IN YOUR LOCAL COPY/MACHINE OR WHEREVER YOU'RE RUNNING THE SERVER
-sys.path.insert(1, "/home/cch106/whereRUeating-main/server/")
-
 import os
 from server.AccountServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -11,21 +5,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
-#session.clear()
 
 @app.route('/', methods=['GET'])
 @app.route('/Home/', methods=['GET'])
-def home():
-    return render_template('Home.html')
-
 @app.route('/Home/<username>/', methods=['GET'])
-def userHome():
-    # Check if user is loggedin
-    if 'loggedin' in session:
-        # User is loggedin show them the home page
-        return render_template('UserHome.html', username=session['username'])
-    # User is not loggedin redirect to login page
-    return redirect(url_for('home'))
+def home():
+    if 'username' not in session:
+        return render_template('Home.html', username='')
+    return render_template('Home.html', username=session['username'])
 
 @app.route('/Login/', methods=['GET', 'POST'])
 def login():
@@ -36,12 +23,12 @@ def login():
         res, msg = authenticate_account(username, password)
         if res != True:
             flash(msg)
-            return redirect(url_for("home"))
+            return redirect(url_for("login"))
         
         session['loggedin'] = True
         session['id'] = msg[0]
         session['username'] = msg[1]
-        return redirect(url_for("userHome"))
+        return redirect(url_for("home"))
 
     return render_template('Login.html')
 
@@ -55,24 +42,28 @@ def create():
         pass2 = request.form.get('pass2')
 
         # inserts data into the database
-        res = create_account(email, user, pass1, pass2)
-        flash(res)
+        res, msg = create_account(email, user, pass1, pass2)
+        if res != True:
+            flash(msg)
+            return redirect(url_for("create"))
+        
+        session['loggedin'] = True
+        session['id'] = msg[0]
+        session['username'] = msg[1]
         return redirect(url_for("home"))
 
     return render_template('CreateAccount.html')
 
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
-	return render_template('Search.html')
+    if 'username' not in session:
+        return render_template('Search.html', username='')
+    return render_template('Search.html', username=session['username'])
 
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
-    print(session)
-    print('username' in session)
     current_user = session['username'] if 'username' in session else None
-    print(current_user)
     if current_user == None: 
-        print("here")
         return redirect(url_for('login'))
 
     #pass this into render_template('UserSettings.html', data=user_preferences)x
@@ -99,8 +90,6 @@ def logout():
    session.pop('username', None)
    # Redirect to login page
    return redirect(url_for('home'))
-
-
 
 if __name__ == '__main__':
     app.run(host='172.16.122.27', port='8080')

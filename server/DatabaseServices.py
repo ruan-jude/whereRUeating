@@ -19,7 +19,6 @@ def setup_cursor(mode):
         conn = mariadb.connect(
             user = db_user,
             password = db_pwd,
-            #host="",
             port = 3306,
             database = "whereRUeating"
             #database = "testDB"

@@ -11,9 +11,8 @@
 			<a href="{{ url_for("search") }}"><b>Search Now!</b></a>
 			<a href="{{ url_for("login") }}">Login Page</a>
 			<a class="active" href="{{ url_for("create") }}">Create Account</a>
-			<a href="{{ url_for("userSettings") }}">User Settings</a>
 		</div>
-		
+
 		<div class="container">
 			<h1>Create Account.</h1>
 			<form method="post" action="{{ url_for("create") }}"> 
@@ -27,6 +26,13 @@
 				<input type="text" id="pass2" name="pass2"><br><br>
 				<input type="submit" value="Create">
 			</form>
+		</div>
+
+		<div class="container" style="padding:50px">
+			{% for message in get_flashed_messages() %}
+				<h1>Server response</h1>
+				<p>{{message}}</p>
+			{% endfor %}
 		</div>
 	</body>
 </html>

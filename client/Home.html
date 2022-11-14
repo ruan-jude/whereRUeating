@@ -4,16 +4,16 @@
 		<title>whereRUeating</title>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
 	</head>
+	{% if username=="" %}
 	<body>
 		<div class="topnav">
 			<a class="active" href="{{ url_for("home")}}">Home</a>
 			<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
 			<a href="{{ url_for("login")}}">Login Page</a>
 			<a href="{{ url_for("create")}}">Create Account</a>
-			<a href="{{ url_for("userSettings")}}">User Settings</a>
 		</div>
 		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
-			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;overflow-y:auto;max-height:200px;">
+			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;overflow-y:auto;max-height:200px">
 				<h1>whereRUeating</h1>
 				<p style="color:white;">
 					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
@@ -22,7 +22,6 @@
 					By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
 				</p>
 			</div>
-
 		</div>
 		<div class="container" style="padding:50px">
 			<h2>Features to be included</h2>
@@ -36,12 +35,20 @@
 			<h2> MORE FEATURES TO COME! </h2>
 			<br>
 		</div>
-		<hr class="solid">
-		<div class="container" style="padding:50px">
-			{% for message in get_flashed_messages() %}
-			<h1>Server response</h1>
-			<p>{{message}}</p>
-			{% endfor %}
+	</body>
+	{% else %}
+	<body>
+		<div class="topnav">
+			<a class="active" href="{{ url_for("home") }}">Home</a>
+			<a href="{{ url_for("search") }}"><b>Search Now!</b></a>
+			<a href="{{ url_for("userSettings") }}">User Settings</a>
+			<a href="{{ url_for("logout") }}">Logout</a>
+		</div>
+		<div class="container">
+			{% block content %}
+				<p>Welcome back, {{ username }}!</p>
+			{% endblock %}
 		</div>
 	</body>
+	{% endif %}
 </html>
