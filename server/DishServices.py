@@ -6,6 +6,14 @@ from server.AccountServices import get_user_preferences
 def searchMenuItems(search_term, current_user):
     whitelist, blacklist = get_user_preferences(current_user)
 
+def getAllTags():
+    cursor, read_conn = setup_cursor("read")
+    query = "SELECT tags.name FROM tags"
+    cursor.execute(query)
+    result_set = cursor.fetchall()
+    read_conn.close()
+
+    return [tag[0] for tag in result_set]
 
 def getMenuItems(requested_date, restaurant_name, meal_time):
     cursor, read_conn = setup_cursor("read")
@@ -29,7 +37,7 @@ def getMenuItemsWithUserPreferences(current_user, restaurant_name, requested_dat
 
     cursor.execute(full_query)
     result_set = isolate_first_value_from_tuple(cursor.fetchall())
-
+    
     read_conn.close()
     return result_set
 

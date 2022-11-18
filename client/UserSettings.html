@@ -2,72 +2,183 @@
 <html>
 <head>
     <title>whereRUeating</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="topnav">
         <a href="{{ url_for("home")}}">Home</a>
         <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-        <a class="active" href="{{ url_for("userSettings")}}">User Settings</a>
+        <a class="active" href="{{ url_for("userSettings") }}">User Settings</a>
+        {% if username=="DHadmin" %}
+        <a href="{{ url_for("editTags") }}">Edit Tags</a>
+        {% endif %}
         <a href="{{ url_for("logout") }}">Logout</a>
     </div>
 
-    <div>
+    <div class="container">
         <h1>Meal Preferences</h1>
         <h2>You are current logged in as {{ username }} </h2>
         <form method = "post">
-            <fieldset>
-                <legend>Restaurant Type</legend>
-                <div>
-                    <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall" in data %} checked {% endif %}/>
-                    <label for="dining_hall">Dining Hall</label>
-                    <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in data %} checked {% endif %}/>
-                    <label for="off_campus">Off-Campus Restaurant</label>
-                    <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {% if "takeout_allowed" in data %} checked {% endif %}/>
-                    <label for="takeout_allowed">Has Takeout</label>
-                </div>
-            </fieldset>
-            <fieldset>
-                <legend>Payment</legend>
-                <div>
-                    <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed" {% if "meal_swipe_allowed" in data %} checked {% endif %}/>
-                    <label for="meal_swipe_allowed">Accepts Meal Swipes</label>
-                    <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed" {% if "ru_express_allowed" in data %} checked {% endif %}/>
-                    <label for="ru_express_allowed">Accepts RU Express</label>
-                </div>
-            </fieldset>
-            <fieldset>
-                <legend>Preferred Diet</legend>
-                <input type="checkbox" id="vegan" name="diet" value="vegan" {% if "vegan" in data %} checked {% endif %}/>
-                <label for="vegan">Vegan</label>
-                <input type="checkbox" id="vegetarian" name="diet" value="vegetarian" {% if "vegetarian" in data %} checked {% endif %}/>
-                <label for="vegetarian">Vegetarian</label>
-                <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in data %} checked {% endif %}/>
-                <label for="halal">Halal</label>
-                <input type="checkbox" id="kosher" name="diet" value="kosher" {% if "kosher" in data %} checked {% endif %}/>
-                <label for="kosher">Kosher</label>
-            </fieldset>
-            <fieldset>
-                <legend>Common Products (REMOVE From Search)</legend>
-                <div>
-                    <input type="checkbox" id="meat" name="tag_exclude" value="meat" {% if "meat" in data %} checked {% endif %}/>
-                    <label for="meat">All Meat</label>
-                    <input type="checkbox" id="chicken" name="tag_exclude" value="chicken" {% if "chicken" in data %} checked {% endif %}/>
-                    <label for="chicken">Chicken</label>
-                    <input type="checkbox" id="pork" name="tag_exclude" value="pork" {% if "pork" in data %} checked {% endif %}/>
-                    <label for="pork">Pork</label>
-                    <input type="checkbox" id="beef" name="tag_exclude" value="beef" {% if "beef" in data %} checked {% endif %}/>
-                    <label for="beef">Beef and Red Meats</label>
-                    <input type="checkbox" id="seafood" name="tag_exclude" value="seafood" {% if "seafood" in data %} checked {% endif %}/>
-                    <label for="seafood">Seafood</label>
-                </div>
-                <div>
-                    <input type="checkbox" id="dairy" name="tag_exclude" value="dairy" {% if "dairy" in data %} checked {% endif %}/>
-                    <label for="dairy">Dairy</label>
-                    <input type="checkbox" id="nuts" name="tag_exclude" value="nuts" {% if "nuts" in data %} checked {% endif %}/>
-                    <label for="nuts">Nuts</label>
-                </div>
-            </fieldset>
+            <div class="neutralColor">
+                <fieldset>
+                    <legend>Restaurant Type</legend>
+                    <div>
+                        <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall" in data %} checked {% endif %}/>
+                        <label for="dining_hall">Dining Hall</label>
+                        <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in data %} checked {% endif %}/>
+                        <label for="off_campus">Off-Campus Restaurant</label>
+                        <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {% if "takeout_allowed" in data %} checked {% endif %}/>
+                        <label for="takeout_allowed">Has Takeout</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Payment</legend>
+                    <div>
+                        <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed" {% if "meal_swipe_allowed" in data %} checked {% endif %}/>
+                        <label for="meal_swipe_allowed">Accepts Meal Swipes</label>
+                        <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed" {% if "ru_express_allowed" in data %} checked {% endif %}/>
+                        <label for="ru_express_allowed">Accepts RU Express</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Preferred Diet</legend>
+                    <div>
+                        <input type="checkbox" id="vegan" name="diet" value="vegan" {% if "vegan" in data %} checked {% endif %}/>
+                        <label for="vegan">Vegan</label>
+                        <input type="checkbox" id="vegetarian" name="diet" value="vegetarian" {% if "vegetarian" in data %} checked {% endif %}/>
+                        <label for="vegetarian">Vegetarian</label>
+                        <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in data %} checked {% endif %}/>
+                        <label for="halal">Halal</label>
+                        <input type="checkbox" id="kosher" name="diet" value="kosher" {% if "kosher" in data %} checked {% endif %}/>
+                        <label for="kosher">Kosher</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Common Products</legend>
+                    <div class="container">
+                        <div>
+                            <label for="meat">All Meat</label>
+                            <select name="meat" id="meat">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="chicken">Chicken</label>
+                            <select name="chicken" id="chicken">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="pork">Pork</label>
+                            <select name="pork" id="pork">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="beef">Beef & Red Meats</label>
+                            <select name="beef" id="beef">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="seafood">Seafood</label>
+                            <select name="seafood" id="seafood">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dairy">Dairy</label>
+                            <select name="dairy" id="dairy">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+  
+                        <div>
+                            <label for="nuts">Nuts</label>
+                            <select name="nuts" id="nuts">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Cuisine</legend>
+                    <div class="container">
+                        <div>
+                            <label for="chinese">Chinese</label>
+                            <select name="chinese" id="chinese">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="indian">Indian</label>
+                            <select name="indian" id="indian">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="mexican">Mexican</label>
+                            <select name="mexican" id="mexican">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="italian">Italian</label>
+                            <select name="italian" id="italian">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="japanese">Japanese</label>
+                            <select name="japanese" id="japanese">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="cafe">Cafe & Coffee</label>
+                            <select name="cafe" id="cafe">
+                                <option value="none">--</option>
+                                <option value="include">Include</option>
+                                <option value="exclude">Exclude</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
             <div>
                 <button type="submit">Save Changes</button>
             </div>

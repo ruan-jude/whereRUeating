@@ -41,7 +41,7 @@ def login():
         session['loggedin'] = True
         session['id'] = msg[0]
         session['username'] = msg[1]
-        return redirect(url_for("userHome", username=session['username']))
+        return redirect(url_for("home"))
 
     return render_template('Login.html')
 
@@ -63,7 +63,7 @@ def create():
         session['loggedin'] = True
         session['id'] = msg[0]
         session['username'] = msg[1]
-        return redirect(url_for("userHome", username=session['username']))
+        return redirect(url_for("home"))
 
     return render_template('CreateAccount.html')
 
@@ -80,6 +80,9 @@ def search():
     # else, pass empty
     return render_template('Search.html', username="")
 
+'''
+Can only access this if logged in
+'''
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
     current_user_id = session['id']
@@ -130,6 +133,20 @@ def menu():
                 "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
                 }
         return render_template('Menu.html', data=data)
+
+'''
+Can only access this if logged in
+'''
+@app.route('/EditTags/', methods=['GET', 'POST'])
+def editTags():
+    if request.method == 'POST': 
+        print("doing something here")
+
+    if session['username'] == 'DHadmin':
+        print(getAllTags())
+        print("getting information for dining hall")
+
+    return render_template('EditTags.html', username=session['username'])
 
 @app.route('/Home/logout')
 def logout():
