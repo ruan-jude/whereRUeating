@@ -18,7 +18,6 @@ def getMenuItems(requested_date, restaurant_name, meal_time):
     result_set = cursor.fetchall() 
 
     isolated_dish_names = isolate_first_value_from_tuple(result_set)
-
     read_conn.close()
     return isolated_dish_names
 
@@ -26,11 +25,7 @@ def getMenuItemsWithUserPreferences(current_user, restaurant_name, requested_dat
     user_whitelist, user_blacklist = get_user_preferences(current_user)
     cursor, read_conn = setup_cursor("read")
     retrieved_date = isolate_date(requested_date)
-    print(user_whitelist)
-    print(user_blacklist)
-    print()
     full_query = selectMenuItemsIncludingTags(user_whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, restaurant_name, retrieved_date, meal_time)
-    print(full_query)
 
     cursor.execute(full_query)
     result_set = isolate_first_value_from_tuple(cursor.fetchall())
@@ -83,8 +78,8 @@ def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date, meal_time
 
 def isolate_date(raw_date):
     strdate = str(raw_date)
-    print(strdate[:11])
-    return strdate[:11]
+    #print(strdate[:10])
+    return strdate[:10]
 
 def main():
     getMenuItems("something", "restaurant_name")
