@@ -87,19 +87,22 @@ Can only access this if logged in
 def userSettings():
     current_user_id = session['id']
     user_whitelist, user_blacklist = get_user_preferences(current_user_id)
-    data = user_whitelist + user_blacklist
    
     if request.method == 'GET':
         return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
     elif request.method == 'POST':
-        tag_exclude_list = request.form.getlist('tag_exclude')
-        include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
-
-        clear_user_preferences(current_user_id)
-        add_user_preferences(current_user_id, include_list, tag_exclude_list)
+        # list of items that you can exclude or include
+        items_exclude = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
         
+        tag_exclude_list = list()
+        tag_include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+        for i in items_exclude:
+            if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
+            elif request.form.get(i) == 'include': tag_include_list.append(i)
+        
+        clear_user_preferences(current_user_id)
+        add_user_preferences(current_user_id, tag_include_list, tag_exclude_list)
         user_whitelist, user_blacklist = get_user_preferences(current_user_id)
-        data = user_whitelist + user_blacklist
 
         flash('Updated preferences for %s!' % (session['username'],))
         return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
