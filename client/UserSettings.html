@@ -4,7 +4,37 @@
     <title>whereRUeating</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+
+<script>
+    let meatsInclude = true
+    let meatsExclude = false
+
+    function updateMeats(){
+        // if meats included, switch info
+        if (meatsInclude == true) {
+            msg = document.getElementById("meats_msg")
+            if (allMeats== true){
+                msg.innerHTML = `
+                <button type="button" onclick="displayMsg()">Exclude Meats</button> 
+                All meats included
+            `
+            } else {
+                msg.innerHTML = `
+                <button type="button" onclick="displayMsg()">Include Meats</button> 
+                All meats excluded
+            `
+            }
+
+        }
+    }
+
+    function disableEnable(){
+        const element = document.getElementById('chicken');
+
+    }
+</script>
+
+<body onload="onLoad()">
     <div class="topnav">
         <a href="{{ url_for("home")}}">Home</a>
         <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
@@ -23,100 +53,104 @@
                 <fieldset>
                     <legend>Restaurant Type</legend>
                     <div>
-                        <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall" in include %} checked {% endif %}/>
                         <label for="dining_hall">Dining Hall</label>
-                        <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in include %} checked {% endif %}/>
                         <label for="off_campus">Off-Campus Restaurant</label>
-                        <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {% if "takeout_allowed" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {% if "takeout_allowed" in include %} checked {% endif %}/>
                         <label for="takeout_allowed">Has Takeout</label>
                     </div>
                 </fieldset>
                 <fieldset>
                     <legend>Payment</legend>
                     <div>
-                        <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed" {% if "meal_swipe_allowed" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed" {% if "meal_swipe_allowed" in include %} checked {% endif %}/>
                         <label for="meal_swipe_allowed">Accepts Meal Swipes</label>
-                        <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed" {% if "ru_express_allowed" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed" {% if "ru_express_allowed" in include %} checked {% endif %}/>
                         <label for="ru_express_allowed">Accepts RU Express</label>
                     </div>
                 </fieldset>
                 <fieldset>
                     <legend>Preferred Diet</legend>
                     <div>
-                        <input type="checkbox" id="vegan" name="diet" value="vegan" {% if "vegan" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="vegan" name="diet" value="vegan" {% if "vegan" in include %} checked {% endif %}/>
                         <label for="vegan">Vegan</label>
-                        <input type="checkbox" id="vegetarian" name="diet" value="vegetarian" {% if "vegetarian" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="vegetarian" name="diet" value="vegetarian" {% if "vegetarian" in include %} checked {% endif %}/>
                         <label for="vegetarian">Vegetarian</label>
-                        <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in include %} checked {% endif %}/>
                         <label for="halal">Halal</label>
-                        <input type="checkbox" id="kosher" name="diet" value="kosher" {% if "kosher" in data %} checked {% endif %}/>
+                        <input type="checkbox" id="kosher" name="diet" value="kosher" {% if "kosher" in include %} checked {% endif %}/>
                         <label for="kosher">Kosher</label>
                     </div>
                 </fieldset>
                 <fieldset>
                     <legend>Common Products</legend>
-                    <div class="container">
-                        <div>
-                            <label for="meat">All Meat</label>
-                            <select name="meat" id="meat">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
-                            </select>
-                        </div>
-                        
+                    <div class="container">                        
                         <div>
                             <label for="chicken">Chicken</label>
                             <select name="chicken" id="chicken">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "chicken" not in include %} {% if "chicken" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "chicken" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "chicken" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="pork">Pork</label>
                             <select name="pork" id="pork">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "pork" not in include %} {% if "pork" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "pork" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "pork" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="beef">Beef & Red Meats</label>
                             <select name="beef" id="beef">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "beef" not in include %} {% if "beef" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "beef" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "beef" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="seafood">Seafood</label>
                             <select name="seafood" id="seafood">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "seafood" not in include %} {% if "seafood" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "seafood" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "seafood" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="dairy">Dairy</label>
                             <select name="dairy" id="dairy">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "dairy" not in include %} {% if "dairy" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "dairy" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "dairy" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
                         </div>
   
                         <div>
                             <label for="nuts">Nuts</label>
                             <select name="nuts" id="nuts">
-                                <option value="none">--</option>
-                                <option value="include">Include</option>
-                                <option value="exclude">Exclude</option>
+                                <option value="none" {% if "nuts" not in include %} {% if "nuts" not in exclude %} selected {% endif %} {% endif %}>--</option>
+                                <option value="include" {% if "nuts" in include %} selected {% endif %}>Include</option>
+                                <option value="exclude" {% if "nuts" in exclude %} selected {% endif %}>Exclude</option>
                             </select>
+                        </div>
+
+                        <div id="meats_msg">
+                            {% if "allMeats" in include %} 
+                                <button type="button" onclick="displayMsg()">Exclude Meats</button> 
+                                All meats included.
+                                {% else %} {% if "allMeats" in exclude %} 
+                                <button type="button" onclick="displayMsg()">Include Meats</button> 
+                                All meats excluded.
+                                {% else %} 
+                                <button type="button" onclick="displayMsg()">All Meats</button> 
+                                {% endif %} {% endif %}
+                            {% if "allMeats" in include %} All meats included {% else %} {% if "allMeats" in exclude %} All meats excluded {% endif %} {% endif %}
                         </div>
                     </div>
                 </fieldset>

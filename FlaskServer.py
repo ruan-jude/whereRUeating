@@ -90,7 +90,7 @@ def userSettings():
     data = user_whitelist + user_blacklist
    
     if request.method == 'GET':
-        return render_template('UserSettings.html', data=data, username=session['username'])
+        return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
     elif request.method == 'POST':
         tag_exclude_list = request.form.getlist('tag_exclude')
         include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
@@ -102,7 +102,7 @@ def userSettings():
         data = user_whitelist + user_blacklist
 
         flash('Updated preferences for %s!' % (session['username'],))
-        return render_template('UserSettings.html', data=data, username=session['username'])
+        return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
 
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
