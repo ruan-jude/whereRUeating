@@ -16,29 +16,24 @@
 		{% endif %}
 		<a href="{{ url_for("logout") }}">Logout</a>
 	</div>
-
-	<form method="post">
+    <form method="post">
         <div class="container">
-			<h1>Editing Tags</h1>
-			<h2>Tags for "{{dishName}}"</h2>
+            <h1>Select Dish</h1>
             <div class="neutralColor">
-                <legend>Tags</legend>
+                <legend>Dishes</legend>
                 <div>
-                    <fieldset style="overflow-y:auto;height:60vh">
-                        {% for tag in tags %}
+                    <fieldset style="overflow-y:auto;height:75vh">
+                        {% for dish in dishes %}
                         <div>
-                            <input type="checkbox" id={{tag}} name="tag" value={{tag}} {% if tag in dishTags %} checked {% endif %} /> 
-                            <label>{{tag}}</label>
+                            <button type="submit" id={{ dish.0 }} name="dish" value={{ dish.0 }} > </button>
+                            <label>{{ dish.1 }}</label>
                         </div>
                         {% endfor %}
                     </fieldset>
                 </div>
             </div>
-			<button type="submit">Save Changes</button>
-			<button type="button" onclick="location.href={{ url_for("chooseDish") }}">Back (Undo Changes)</button>
         </div>
     </form>
-
 </body>
 
 </html>

@@ -74,7 +74,7 @@
         <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
         <a class="active" href="{{ url_for("userSettings") }}">User Settings</a>
         {% if username=="DHadmin" %}
-        <a href="{{ url_for("editTags") }}">Edit Tags</a>
+        <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
         {% endif %}
         <a href="{{ url_for("logout") }}">Logout</a>
     </div>

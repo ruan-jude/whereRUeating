@@ -1,11 +1,12 @@
 import bcrypt, re
 from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 
+# ===== ACCOUNT FUNCTIONS START =====
 '''
 Checks whether account exists
     If exists, return True and (id, username, password)
     Else, returns False and error msg
-FUNCTIONING
+FUNCTIONING`
 '''
 def authenticate_account(username_input, password_input):
     cursor,read_conn = setup_cursor("read")
@@ -86,7 +87,9 @@ def sanitize_info(email_input, username_input, password_input):
         return False, 'Please fill out the form!'
 
     return True
+# ===== ACCOUNT FUNCTIONS END =====
 
+# ===== USER PREFERENCES START =====
 '''
 User preferences for include and diet are obtained directly from HTML and combined
 FUNCTIONING
@@ -139,15 +142,10 @@ def clear_user_preferences(current_user_id):
     delete_conn.commit()
     delete_conn.close()
 
-def delete_user_preference(current_user_id):
-    cursor,write_conn = setup_cursor("write")
-    cursor.execute("DELETE FROM userPreferences WHERE user_id = ?", (current_user_id,))
-    write_conn.commit()
-    return True, "Preferences cleared!"
-
 '''
 Isolates tags from all other information
 FUNCTIONING
 '''
 def isolate_tag_names(whitelist_result_set, blacklist_result_set):
     return isolate_first_value_from_tuple(whitelist_result_set), isolate_first_value_from_tuple(blacklist_result_set)
+# ===== USER PREFERENCES END =====

@@ -88,9 +88,7 @@ def userSettings():
     current_user_id = session['id']
     user_whitelist, user_blacklist = get_user_preferences(current_user_id)
    
-    if request.method == 'GET':
-        return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
-    elif request.method == 'POST':
+    if request.method == 'POST':
         # list of items that you can exclude or include
         items_exclude = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
         
@@ -106,6 +104,43 @@ def userSettings():
 
         flash('Updated preferences for %s!' % (session['username'],))
         return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
+    
+    return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
+
+'''
+Can only access this if logged in
+'''
+@app.route('/ChooseDish/', methods=['GET', 'POST'])
+def chooseDish():
+    dishes = getAllMenuItems()
+
+    if request.method == 'POST': 
+        dish_id = request.form.get('dish')
+        return redirect(url_for("editTags", dish_id=dish_id))
+        
+    return render_template('ChooseDish.html', dishes=dishes, username=session['username'])
+
+'''
+Can only access this if logged in
+'''
+@app.route('/EditTags/<dish_id>/', methods=['GET', 'POST'])
+def editTags(dish_id):
+    # TODO: add implementation for invalid dish_id
+    if not validDish(dish_id):
+        return redirect(url_for('chooseDish'))
+
+    tags = getAllTags()
+    dishName = getDishName(dish_id)
+
+    if request.method == 'POST':
+        newTags = request.form.getlist('tag')
+        clearDishTags(dish_id)
+        addDishTags(dish_id, newTags)
+        dishTags = getDishTags(dish_id)
+        return render_template('EditTags.html', tags=tags, dishName=dishName, dishTags=dishTags, username=session['username'])
+    
+    dishTags = getDishTags(dish_id)
+    return render_template('EditTags.html', tags=tags, dishName=dishName, dishTags=dishTags, username=session['username'])
 
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
@@ -136,20 +171,6 @@ def menu():
                 "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
                 }
         return render_template('Menu.html', data=data)
-
-'''
-Can only access this if logged in
-'''
-@app.route('/EditTags/', methods=['GET', 'POST'])
-def editTags():
-    if request.method == 'POST': 
-        print("doing something here")
-
-    if session['username'] == 'DHadmin':
-        print(getAllTags())
-        print("getting information for dining hall")
-
-    return render_template('EditTags.html', username=session['username'])
 
 @app.route('/Home/logout')
 def logout():

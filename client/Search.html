@@ -34,7 +34,7 @@
     {% else %}
     <a href="{{ url_for("userSettings") }}">User Settings</a>
       {% if username=="DHadmin" %}
-    <a href="{{ url_for("editTags") }}">Edit Tags</a>
+    <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
       {% endif %}
     <a href="{{ url_for("logout") }}">Logout</a>
     {% endif %}
@@ -43,7 +43,7 @@
   <div id="wrap">
     <div id="left_col">
       <form method="post">
-        <div style="">
+        <div>
           <fieldset>
             <legend>Campus</legend>
             <div>

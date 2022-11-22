@@ -6,14 +6,87 @@ from server.AccountServices import get_user_preferences
 def searchMenuItems(search_term, current_user):
     whitelist, blacklist = get_user_preferences(current_user)
 
+'''
+Gets all tag names
+FUNCTIONING
+'''
 def getAllTags():
     cursor, read_conn = setup_cursor("read")
-    query = "SELECT tags.name FROM tags"
-    cursor.execute(query)
+    cursor.execute("SELECT tags.name FROM tags")
     result_set = cursor.fetchall()
     read_conn.close()
 
     return [tag[0] for tag in result_set]
+
+'''
+Gets all menu items
+FUNCTIONING
+'''
+def getAllMenuItems():
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT * FROM dishes")
+    result_set = cursor.fetchall()
+    read_conn.close()
+
+    return result_set
+
+'''
+Gets all tags associated with a given menu item
+FUNCTIONING
+'''
+def getDishTags(dishID):
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT dishInfo.tag_name FROM dishInfo WHERE dishInfo.dish_id = ?", (dishID, ))
+    result_set = cursor.fetchall()
+    read_conn.close()
+    
+    return [tag[0] for tag in result_set]
+
+'''
+Inserts the tags of specified dish
+FUNCTIONING
+'''
+def addDishTags(dishID, dishTags):
+    cursor,write_conn = setup_cursor("write")
+
+    for tag in dishTags:
+        cursor.execute("INSERT IGNORE INTO dishInfo (dish_id, tag_name) VALUES (?, ?)", (dishID, tag))
+
+    write_conn.commit()
+    write_conn.close()
+
+'''
+Deletes tags of specified dish
+FUNCTIONING
+'''
+def clearDishTags(dishID):
+    cursor, delete_conn = setup_cursor("write")
+    cursor.execute("DELETE FROM dishInfo WHERE dish_id=?", (dishID,))
+    delete_conn.commit()
+    delete_conn.close()
+
+'''
+Gets name of the specified dish
+FUNCTIONING
+'''
+def getDishName(dishID):
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT dishes.name FROM dishes WHERE dishes.id = ?", (dishID, ))
+    result_set = cursor.fetchall()
+    read_conn.close()
+
+    return result_set[0][0]
+
+def validDish(dishID):
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT * FROM dishes WHERE dishes.id = ?", (dishID, ))
+    result_set = cursor.fetchall()
+
+    if result_set == None or not result_set:
+        return False
+    
+    return True
+
 
 def getMenuItems(requested_date, restaurant_name, meal_time):
     cursor, read_conn = setup_cursor("read")
@@ -41,6 +114,9 @@ def getMenuItemsWithUserPreferences(current_user, restaurant_name, requested_dat
     read_conn.close()
     return result_set
 
+'''
+
+'''
 def selectMenuItemsIncludingTags(tagList, dining_hall, requested_date, meal_time):
     baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
         FROM menuItems 

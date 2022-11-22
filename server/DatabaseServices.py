@@ -1,6 +1,10 @@
 import mariadb
 import server.ServerConstants as ServerConstants
 
+'''
+Creates a connection to the database
+FUNCTIONING
+'''
 def setup_cursor(mode):
     db_user = ""
     db_pwd = ""
