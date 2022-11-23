@@ -77,18 +77,38 @@ def getDishName(dishID):
 
     return result_set[0][0]
 
+'''
+Checks whether a dish id is valid
+FUNCTIONING
+'''
 def validDish(dishID):
     cursor, read_conn = setup_cursor("read")
     cursor.execute("SELECT * FROM dishes WHERE dishes.id = ?", (dishID, ))
     result_set = cursor.fetchall()
+    read_conn.close()
 
-    if result_set == None or not result_set:
-        return False
+    if result_set == None or not result_set: return False
     
     return True
 
+'''
+Gets the dates scraped
+Returns datetime.date object of each date in order 
+FUNCTIONING
+'''
+def getDatesScraped():
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT DISTINCT(date) from menuItems ORDER BY date")
+    result_set = cursor.fetchall()
+    read_conn.close()
 
-def getMenuItems(requested_date, restaurant_name, meal_time):
+    return [date[0] for date in result_set]
+
+'''
+Gets menu items at the given restaurant, on a given date, at a specific meal time
+FUNCTIONING
+'''
+def getMenuItems(restaurant_name, requested_date, meal_time):
     cursor, read_conn = setup_cursor("read")
     query = """SELECT dishes.name, menuItems.date, menuItems.meal_time 
             FROM menuItems 
@@ -97,13 +117,17 @@ def getMenuItems(requested_date, restaurant_name, meal_time):
             WHERE restaurants.name = ? AND menuItems.date = ? AND menuItems.meal_time = ?"""
     cursor.execute(query, (restaurant_name, requested_date, meal_time))
     result_set = cursor.fetchall() 
+    read_conn.close()
 
     isolated_dish_names = isolate_first_value_from_tuple(result_set)
-    read_conn.close()
     return isolated_dish_names
 
-def getMenuItemsWithUserPreferences(current_user, restaurant_name, requested_date, meal_time):
-    user_whitelist, user_blacklist = get_user_preferences(current_user)
+'''
+Gets menu items at the given restaurant, on a given date, at a specific meal time
+Includes user preferences
+'''
+def getMenuItemsWithUserPreferences(current_user_id, restaurant_name, requested_date, meal_time):
+    user_whitelist, user_blacklist = get_user_preferences(current_user_id)
     cursor, read_conn = setup_cursor("read")
     retrieved_date = isolate_date(requested_date)
     full_query = selectMenuItemsIncludingTags(user_whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, restaurant_name, retrieved_date, meal_time)

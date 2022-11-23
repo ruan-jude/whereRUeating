@@ -1,57 +1,136 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>whereRUeating</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
+<style type="text/css">
+    .wrap {
+        width: 640px;
+        margin: 0 auto;
+        padding-bottom: 200px;
+    }
+
+    .left-col {
+        float: left;
+        position: relative;
+        width: 220px;
+        height: 400px;
+    }
+
+    .right-col {
+        float: right;
+        position: relative;
+        width: 400px;
+        height: 400px;
+    }
+
+    .center {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+</style>
+
 <body>
     <div class="topnav">
-        <a class="active" href="{{ url_for("home")}}">Home</a>
+        <a href="{{ url_for("home")}}">Home</a>
+        <a class="active" href="{{ url_for("menu")}}">DH Menu</a>
         <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-        {% if username=="" %}
+        {% if data['username']=="" %}
         <a href="{{ url_for("login")}}">Login Page</a>
         <a href="{{ url_for("create")}}">Create Account</a>
         {% else %}
         <a href="{{ url_for("userSettings") }}">User Settings</a>
-            {% if username=="DHadmin" %}
+            {% if data['username']=="DHadmin" %}
         <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
             {% endif %}
         <a href="{{ url_for("logout") }}">Logout</a>
         {% endif %}
     </div>
 
-    <form method = "post">
-        <input type="submit" name="submit_button" value="Breakfast">
-        <input type="submit" name="submit_button" value="Lunch">
-        <input type="submit" name="submit_button" value="Dinner">
-        <input type="checkbox" id = "user_preference" name="apply_filters" value="apply_filters_true" {% if data['checked'] %} checked {% endif %}/>
-        <label for="user_preference">Apply User Preferences?</label>
-    </form>
+    <div class="container">
+        <h1>Dining Hall Menu</h1>
+        <h2>{{data['dining_hall']}} menu - {{data['meal_time']}}</h2>
+    </div>
 
-    <h1>Livingston</h1>
-        <ul>
-            {% for item in data['Livingston'] %}
-                <li>{{item}}</li>
-            {% endfor %}
-        </ul>
-
-    <h1>Busch</h1>
-        <ul>
-            {% for item in data['Busch'] %}
-                <li>{{item}}</li>
-            {% endfor %}
-        </ul>
-    <h1>Brower</h1>
-        <ul>
-            {% for item in data['Brower'] %}
-                <li>{{item}}</li>
-            {% endfor %}
-        </ul>
-    <h1>Nielson</h1>
-        <ul>
-            {% for item in data['Nielson'] %}
-                <li>{{item}}</li>
-            {% endfor %}
-        </ul>
+    <div class="wrap">
+        <div class="left-col">
+            <div class="vertical-center">
+                <form method="post">
+                    <div>
+                        <label for="date">Date: </label>
+                        <select name="date" id="date">
+                            {% for date in data['dates'] %}
+                            <option id={{date[0]}} value={{date[0]}} name="date" {% if date[1]==data['current_day']
+                                %}selected{% endif %}>{{date[1]}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <br>
+                    <div>
+                        <label for="meal">Meal Time: </label>
+                        <select name="meal" id="meal">
+                            <option value="breakfast" name="meal" {% if data['meal_time']=="breakfast" %}selected{%
+                                endif %}>Breakfast</option>
+                            <option value="lunch" name="meal" {% if data['meal_time']=="lunch" %}selected{% endif %}>
+                                Lunch</option>
+                            <option value="dinner" name="meal" {% if data['meal_time']=="dinner" %}selected{% endif %}>
+                                Dinner</option>
+                        </select>
+                    </div>
+                    <br>
+                    <div>
+                        <label for="dining_hall">Dining Hall: </label>
+                        <select name="dining_hall" id="dining_hall">
+                            <option value="Livingston" {% if data['dining_hall']=="Livingston DH" %}selected{% endif %}>
+                                Livingston DH
+                            </option>
+                            <option value="Brower" {% if data['dining_hall']=="Brower DH" %}selected{% endif %}>
+                                Brower DH
+                            </option>
+                            <option value="Busch" {% if data['dining_hall']=="Busch DH" %}selected{% endif %}>
+                                Busch DH
+                            </option>
+                            <option value="Nielson" {% if data['dining_hall']=="Nielson DH" %}selected{% endif %}>
+                                Nielson DH
+                            </option>
+                        </select>
+                    </div>
+                    <br>
+                    {% if data['username'] != "" %}
+                    <div>
+                        <input type="checkbox" id="user_preference" name="apply_filters" {% if data['checked']==True %} checked {% endif %} />
+                        <label for="user_preference">Apply User Preferences?</label>
+                    </div>
+                    {% endif %}
+                    <br>
+                    <div>
+                        <button type="submit">Apply Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="right-col">
+            <fieldset style="overflow-y:auto;height:400px">
+                {% if data['menu_empty'] == False %}
+                <div class="center">
+                    NO MENU FOR SELECTED MEAL TIME
+                </div>
+                {% else %}
+                {% for item in data['menu'] %}
+                * {{item}}
+                <br>
+                {% endfor %}
+                {% endif %}
+            </fieldset>
+        </div>
+    </div>
 </body>
+
 </html>

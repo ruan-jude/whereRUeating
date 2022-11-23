@@ -1,9 +1,9 @@
-import mariadb
+import os, sys
+sys.path.append("../")
+
 import requests
-from datetime import datetime
-import calendar
 import pandas as pd
-from tabulate import tabulate
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
 from AccountServices import *
 
@@ -16,8 +16,7 @@ CampusMenuURLs = [LiviMenuURL, BuschMenuURL, CAMenuURL, CDMenuURL]
 '''
 Collects the weekly menu for the specified dining hall
 '''
-def getDiningHallInfo(diningHallURL: str, URLprefix: str = 'http://menuportal.dining.rutgers.edu/FoodPro/') -> None:
-    results = dict()
+def getDiningHallInfo(URLprefix: str = 'http://menuportal.dining.rutgers.edu/FoodPro/') -> None:
     diningHallNames = {'Livingston':'2', 'Busch':'3', 'Nielson':'4', 'Brower':'1'}
 
 	# iterates through each campus food site
@@ -130,7 +129,7 @@ def clearMenuItemsTable():
 
 def main():
     clearMenuItemsTable()
-    getDiningHallInfo(CAMenuURL)
+    getDiningHallInfo()
 
 if __name__ == "__main__":
     main()

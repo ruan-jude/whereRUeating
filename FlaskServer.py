@@ -1,4 +1,5 @@
-import os, datetime
+import os, calendar
+from datetime import datetime, timedelta
 from server.AccountServices import *
 from server.DishServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -125,13 +126,12 @@ Can only access this if logged in
 '''
 @app.route('/EditTags/<dish_id>/', methods=['GET', 'POST'])
 def editTags(dish_id):
-    # TODO: add implementation for invalid dish_id
+    # if dish_id is invalid, go to choose dish page
     if not validDish(dish_id):
         return redirect(url_for('chooseDish'))
 
     tags = getAllTags()
     dishName = getDishName(dish_id)
-
     if request.method == 'POST':
         newTags = request.form.getlist('tag')
         clearDishTags(dish_id)
@@ -144,33 +144,70 @@ def editTags(dish_id):
 
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
+    username = session['username'] if 'username' in session else ""
+
+    # gets the dates for which we scraped menus
+    rawMenuDays = getDatesScraped()
+    menuDays = list()
+    for day in rawMenuDays:
+        dayStr = calendar.day_name[day.weekday()] + ', ' + day.strftime('%B %d, %Y')
+        menuDays.append((dayStr, day))
+
+        # gets string for today's date
+        if day.strftime('%B/%d/%Y') == datetime.now().strftime('%B/%d/%Y'): 
+            todayStr = (dayStr, day)
+    dateParam = [(i, day[0]) for i, day in enumerate(menuDays)]
+
+    databaseDHStr = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Nielson":"Nielson DH"}
     if request.method == 'GET':
-        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", "breakfast"),
-                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", "breakfast"),
-                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", "breakfast"),
-                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", "breakfast")
-                }
-        return render_template('Menu.html', data=data)
+        # TODO: add implementation to default given current time
+        # Defaults to Livingston lunch menu (no real reason, just wanted to choose randomly)
+        dining_hall = "Livingston DH"
+        current_day_str = todayStr[0]
+        meal_time = "lunch"
+        current_day_datetime = todayStr[1] 
+        checked = False 
+        menu = getMenuItems(dining_hall, current_day_datetime, meal_time)
+    else:
+        meal_time = request.form['meal']
+        dining_hall = databaseDHStr[request.form['dining_hall']]
+        for day in dateParam:
+            if day[0] == int(request.form['date']):
+                current_day_str = day[1]
+                break
+        for day in menuDays:
+            if day[0] == current_day_str:
+                current_day_datetime = day[1]
+                break
+        
+        if 'apply_filters' in request.form:
+            print('herre')
+            checked = True
+            menu= getMenuItemsWithUserPreferences(session['id'], dining_hall, current_day_datetime, meal_time)
+        else:
+            checked = False
+            menu = getMenuItems(dining_hall, current_day_datetime, meal_time)
+        
+    
+    data = {"username":username,
+            "dining_hall":dining_hall, 
+            "current_day":current_day_str,
+            "dates":dateParam,
+            "meal_time":meal_time,
+            "menu_empty":bool(menu),
+            "checked":checked,
+            "menu":menu}    
+    return render_template('Menu.html', data=data)
 
-    elif request.method == 'POST' and request.form.get('apply_filters') == 'apply_filters_true':
-        meal_time = request.form['submit_button']
-        current_user = session['username']
-        data = {"Livingston" : getMenuItemsWithUserPreferences(current_user, "Livingston DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Busch": getMenuItemsWithUserPreferences(current_user, "Busch DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Brower": getMenuItemsWithUserPreferences(current_user, "Brower DH", datetime.datetime(2022, 11, 3), meal_time),
-                "Nielson": getMenuItemsWithUserPreferences(current_user, "Nielson DH", datetime.datetime(2022, 11, 3), meal_time),
-                "checked": True
-                }
-        return render_template('Menu.html', data=data)
-
-    elif request.method == 'POST':
-        meal_time = request.form['submit_button']
-        data = {"Livingston" : getMenuItems(datetime.datetime(2022, 11, 3), "Livingston DH", meal_time),
-                "Busch": getMenuItems(datetime.datetime(2022, 11, 3), "Busch DH", meal_time),
-                "Brower": getMenuItems(datetime.datetime(2022, 11, 3), "Brower DH", meal_time),
-                "Nielson": getMenuItems(datetime.datetime(2022, 11, 3), "Nielson DH", meal_time)
-                }
-        return render_template('Menu.html', data=data)
+    '''elif request.method == 'POST' and request.form.get('apply_filters') == 'apply_filters_true':
+    meal_time = request.form['submit_button']
+    current_user_id = session['id']
+    data = {"Livingston" : getMenuItemsWithUserPreferences(current_user_id, "Livingston DH", datetime(year, month, day), meal_time),
+            "Busch": getMenuItemsWithUserPreferences(current_user_id, "Busch DH", datetime(year, month, day), meal_time),
+            "Brower": getMenuItemsWithUserPreferences(current_user_id, "Brower DH", datetime(year, month, day), meal_time),
+            "Nielson": getMenuItemsWithUserPreferences(current_user_id, "Nielson DH", datetime(year, month, day), meal_time),
+            "checked": True
+            }'''
 
 @app.route('/Home/logout')
 def logout():
@@ -182,4 +219,4 @@ def logout():
    return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(host='172.16.122.27', port='3030')
+    app.run(host='172.16.122.27', port='8080')
