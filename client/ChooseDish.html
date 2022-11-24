@@ -12,7 +12,7 @@
         <a href="{{ url_for("menu")}}">DH Menu</a>
 		<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
 		<a href="{{ url_for("userSettings") }}">User Settings</a>
-		{% if username=="DHadmin" %}
+		{% if data['username']=="DHadmin" %}
 		<a class="active" href="{{ url_for("chooseDish") }}">Edit Tags</a>
 		{% endif %}
 		<a href="{{ url_for("logout") }}">Logout</a>
@@ -24,7 +24,7 @@
                 <legend>Dishes</legend>
                 <div>
                     <fieldset style="overflow-y:auto;height:75vh">
-                        {% for dish in dishes %}
+                        {% for dish in data['dishes'] %}
                         <div>
                             <button type="submit" id={{ dish.0 }} name="dish" value={{ dish.0 }} > </button>
                             <label>{{ dish.1 }}</label>

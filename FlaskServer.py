@@ -8,6 +8,9 @@ template_dir = os.getcwd() + '/client/'
 app = Flask(__name__, template_folder=template_dir)
 app.secret_key = 'SECRET_KEY'
 
+''' 
+FUNCTIONING
+'''
 @app.route('/', methods=['GET'])
 def home():
     # if user is logged in, go to user home page
@@ -17,6 +20,9 @@ def home():
     # else, go to generic home page
     return render_template('Home.html', username="")
 
+'''
+FUNCTIONING
+'''
 @app.route('/Home/<username>/', methods=['GET'])
 def userHome(username):
     # if user is logged in, render user home page
@@ -26,6 +32,9 @@ def userHome(username):
     # else, go to generic home page
     return redirect(url_for('home'))
 
+'''
+FUNCTIONING
+'''
 @app.route('/Login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -46,6 +55,9 @@ def login():
 
     return render_template('Login.html')
 
+'''
+FUNCTIONING
+'''
 @app.route('/CreateAccount/', methods=['GET', 'POST'])
 def create():
     if request.method == 'POST':
@@ -68,21 +80,9 @@ def create():
 
     return render_template('CreateAccount.html')
 
-@app.route('/Search/', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        print("Searching...")
-        return
-    
-    # if user is logged in, pass username
-    if 'loggedin' in session:
-        return render_template('Search.html', username=session['username'])
-
-    # else, pass empty
-    return render_template('Search.html', username="")
-
 '''
 Can only access this if logged in
+FUNCTIONING
 '''
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
@@ -90,12 +90,9 @@ def userSettings():
     user_whitelist, user_blacklist = get_user_preferences(current_user_id)
    
     if request.method == 'POST':
-        # list of items that you can exclude or include
-        items_exclude = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
-        
         tag_exclude_list = list()
         tag_include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
-        for i in items_exclude:
+        for i in ITEMS_TO_CHECK:
             if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
             elif request.form.get(i) == 'include': tag_include_list.append(i)
         
@@ -104,12 +101,17 @@ def userSettings():
         user_whitelist, user_blacklist = get_user_preferences(current_user_id)
 
         flash('Updated preferences for %s!' % (session['username'],))
-        return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
     
-    return render_template('UserSettings.html', include=user_whitelist, exclude=user_blacklist, username=session['username'])
+    data = {
+        'username':session['username'],
+        'include':user_whitelist,
+        'exclude':user_blacklist
+    }
+    return render_template('UserSettings.html', data=data)
 
 '''
 Can only access this if logged in
+FUNCTIONING
 '''
 @app.route('/ChooseDish/', methods=['GET', 'POST'])
 def chooseDish():
@@ -118,47 +120,79 @@ def chooseDish():
     if request.method == 'POST': 
         dish_id = request.form.get('dish')
         return redirect(url_for("editTags", dish_id=dish_id))
-        
-    return render_template('ChooseDish.html', dishes=dishes, username=session['username'])
+    
+    data={
+        'username':session['username'],
+        'dishes':dishes
+    }
+    return render_template('ChooseDish.html', data=data)
 
 '''
 Can only access this if logged in
+FUNCTIONING
 '''
 @app.route('/EditTags/<dish_id>/', methods=['GET', 'POST'])
 def editTags(dish_id):
     # if dish_id is invalid, go to choose dish page
-    if not validDish(dish_id):
-        return redirect(url_for('chooseDish'))
+    if not validDish(dish_id): return redirect(url_for('chooseDish'))
 
-    tags = getAllTags()
-    dishName = getDishName(dish_id)
+    # adds new tags to the database
     if request.method == 'POST':
         newTags = request.form.getlist('tag')
         clearDishTags(dish_id)
-        addDishTags(dish_id, newTags)
-        dishTags = getDishTags(dish_id)
-        return render_template('EditTags.html', tags=tags, dishName=dishName, dishTags=dishTags, username=session['username'])
-    
-    dishTags = getDishTags(dish_id)
-    return render_template('EditTags.html', tags=tags, dishName=dishName, dishTags=dishTags, username=session['username'])
+        addDishTags(dish_id, newTags)    
 
+    data={
+        'username':session['username'],
+        'tags':getAllTags(),
+        'dishName':getDishName(dish_id),
+        'dishTags':getDishTags(dish_id)
+    }
+    return render_template('EditTags.html', data=data)
+
+@app.route('/Search/', methods=['GET', 'POST'])
+def search():
+    # TODO: add search meal bar to search specifically OR select meals to search
+    username=session['username'] if 'loggedin' in session else ""
+    menuDays, _ = getDateStr()
+    dateParam = [(i, day[0]) for i, day in enumerate(menuDays)]
+    restaurants_included, tag_include_list, tag_exclude_list = list(), list(), list()
+    completeSearch = False
+    
+    if request.method == 'POST':
+        # extracts restaurants
+        restaurants_included = request.form.getlist('restaurant')
+        if not bool(restaurants_included): restaurants_included = ['Livingston', 'Brower', 'Busch', 'Nielson']
+
+        # extracts parameters to include and exclude  
+        tag_exclude_list = list()
+        tag_include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+        for i in ITEMS_TO_CHECK:
+            if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
+            elif request.form.get(i) == 'include': tag_include_list.append(i)  
+        completeSearch = searchMenuItems(restaurants_included, tag_include_list, tag_exclude_list)       
+
+    data = {"username":username,
+            "dates":dateParam,
+            "meal_times":MEAL_TIMES,
+            "restaurants_included":restaurants_included,
+            "include":tag_include_list,
+            "exclude":tag_exclude_list,
+            "complete_search":completeSearch}   
+    return render_template('Search.html', data=data)
+
+'''
+FUNCTIONING
+'''
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
     username = session['username'] if 'username' in session else ""
 
     # gets the dates for which we scraped menus
-    rawMenuDays = getDatesScraped()
-    menuDays = list()
-    for day in rawMenuDays:
-        dayStr = calendar.day_name[day.weekday()] + ', ' + day.strftime('%B %d, %Y')
-        menuDays.append((dayStr, day))
-
-        # gets string for today's date
-        if day.strftime('%B/%d/%Y') == datetime.now().strftime('%B/%d/%Y'): 
-            todayStr = (dayStr, day)
+    # menuDays = (dateStr, dateDatetime)
+    menuDays, todayStr = getDateStr()
     dateParam = [(i, day[0]) for i, day in enumerate(menuDays)]
 
-    databaseDHStr = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Nielson":"Nielson DH"}
     if request.method == 'GET':
         # TODO: add implementation to default given current time
         # Defaults to Livingston lunch menu (no real reason, just wanted to choose randomly)
@@ -170,7 +204,7 @@ def menu():
         menu = getMenuItems(dining_hall, current_day_datetime, meal_time)
     else:
         meal_time = request.form['meal']
-        dining_hall = databaseDHStr[request.form['dining_hall']]
+        dining_hall = DB_DH_STR[request.form['dining_hall']]
         for day in dateParam:
             if day[0] == int(request.form['date']):
                 current_day_str = day[1]
@@ -181,13 +215,11 @@ def menu():
                 break
         
         if 'apply_filters' in request.form:
-            print('herre')
             checked = True
             menu= getMenuItemsWithUserPreferences(session['id'], dining_hall, current_day_datetime, meal_time)
         else:
             checked = False
             menu = getMenuItems(dining_hall, current_day_datetime, meal_time)
-        
     
     data = {"username":username,
             "dining_hall":dining_hall, 
@@ -199,16 +231,9 @@ def menu():
             "menu":menu}    
     return render_template('Menu.html', data=data)
 
-    '''elif request.method == 'POST' and request.form.get('apply_filters') == 'apply_filters_true':
-    meal_time = request.form['submit_button']
-    current_user_id = session['id']
-    data = {"Livingston" : getMenuItemsWithUserPreferences(current_user_id, "Livingston DH", datetime(year, month, day), meal_time),
-            "Busch": getMenuItemsWithUserPreferences(current_user_id, "Busch DH", datetime(year, month, day), meal_time),
-            "Brower": getMenuItemsWithUserPreferences(current_user_id, "Brower DH", datetime(year, month, day), meal_time),
-            "Nielson": getMenuItemsWithUserPreferences(current_user_id, "Nielson DH", datetime(year, month, day), meal_time),
-            "checked": True
-            }'''
-
+'''
+FUNCTIONING
+'''
 @app.route('/Home/logout')
 def logout():
     # Remove session data, this will log the user out
