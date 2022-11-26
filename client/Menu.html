@@ -39,18 +39,19 @@
 
 <body>
     <div class="topnav">
-        <a href="{{ url_for("home")}}">Home</a>
-        <a class="active" href="{{ url_for("menu")}}">DH Menu</a>
-        <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
+        <a href="{{ url_for('home')}}">Home</a>
+        <a class="active" href="{{ url_for('menu')}}">DH Menu</a>
+        <a href="{{ url_for('search')}}"><b>Search Now!</b></a>
+        
         {% if data['username']=="" %}
-        <a href="{{ url_for("login")}}">Login Page</a>
-        <a href="{{ url_for("create")}}">Create Account</a>
+            <a href="{{ url_for('login')}}">Login Page</a>
+            <a href="{{ url_for('create')}}">Create Account</a>
         {% else %}
-        <a href="{{ url_for("userSettings") }}">User Settings</a>
+            <a href="{{ url_for('userSettings') }}">User Settings</a>
             {% if data['username']=="DHadmin" %}
-        <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
+                <a href="{{ url_for('chooseDish') }}">Edit Tags</a>
             {% endif %}
-        <a href="{{ url_for("logout") }}">Logout</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
     </div>
 
@@ -67,12 +68,14 @@
                         <label for="date">Date: </label>
                         <select name="date" id="date">
                             {% for date in data['dates'] %}
-                            <option id={{date[0]}} value={{date[0]}} name="date" {% if date[1]==data['current_day']
-                                %}selected{% endif %}>{{date[1]}}</option>
+                                <option id={{date[0]}} value={{date[0]}} name="date" 
+                                    {% if date[1]==data['current_day'] %}selected{% endif %}>{{date[1]}}</option>
                             {% endfor %}
                         </select>
                     </div>
+
                     <br>
+                    
                     <div>
                         <label for="meal">Meal Time: </label>
                         <select name="meal" id="meal">
@@ -84,7 +87,9 @@
                                 Dinner</option>
                         </select>
                     </div>
+                    
                     <br>
+                    
                     <div>
                         <label for="dining_hall">Dining Hall: </label>
                         <select name="dining_hall" id="dining_hall">
@@ -97,36 +102,42 @@
                             <option value="Busch" {% if data['dining_hall']=="Busch DH" %}selected{% endif %}>
                                 Busch DH
                             </option>
-                            <option value="Nielson" {% if data['dining_hall']=="Nielson DH" %}selected{% endif %}>
-                                Nielson DH
+                            <option value="Neilson" {% if data['dining_hall']=="Neilson DH" %}selected{% endif %}>
+                                Neilson DH
                             </option>
                         </select>
                     </div>
+                    
                     <br>
+                    
                     {% if data['username'] != "" %}
-                    <div>
-                        <input type="checkbox" id="user_preference" name="apply_filters" {% if data['checked']==True %} checked {% endif %} />
-                        <label for="user_preference">Apply User Preferences?</label>
-                    </div>
+                        <div>
+                            <input type="checkbox" id="user_preference" name="apply_filters" {% if data['checked']==True %}
+                                checked {% endif %} />
+                            <label for="user_preference">Apply User Preferences?</label>
+                        </div>
                     {% endif %}
+
                     <br>
+                    
                     <div>
                         <button type="submit">Apply Changes</button>
                     </div>
                 </form>
             </div>
         </div>
+        
         <div class="right-col">
             <fieldset style="overflow-y:auto;height:400px">
                 {% if data['menu_empty'] == False %}
-                <div class="center">
-                    NO MENU FOR SELECTED PREFERENCES
-                </div>
+                    <div class="center">
+                        NO MENU FOR SELECTED PREFERENCES
+                    </div>
                 {% else %}
-                {% for item in data['menu'] %}
-                * {{item}}
-                <br>
-                {% endfor %}
+                    {% for item in data['menu'] %}
+                        - {{item}}
+                        <br>
+                    {% endfor %}
                 {% endif %}
             </fieldset>
         </div>

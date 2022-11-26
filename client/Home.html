@@ -1,97 +1,111 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>whereRUeating</title>
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-	</head>
 
-	<style type="text/css">	  
-		.center {
-		  margin: 0;
-		  position: relative;
-		  top: 50%;
-		  left: 50%;
-		  -ms-transform: translate(-50%, -50%);
-		  transform: translate(-50%, -50%);
-		}
-	  </style>
+<head>
+	<title>whereRUeating</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
 
-	<body>
-		<div class="topnav">
-			<a class="active" href="{{ url_for("home")}}">Home</a>
-			<a href="{{ url_for("menu")}}">DH Menu</a>
-			<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-			{% if username=="" %}
-			<a href="{{ url_for("login")}}">Login Page</a>
-			<a href="{{ url_for("create")}}">Create Account</a>
-			{% else %}
-			<a href="{{ url_for("userSettings") }}">User Settings</a>
-				{% if username=="DHadmin" %}
-			<a href="{{ url_for("chooseDish") }}">Edit Tags</a>
-				{% endif %}
-			<a href="{{ url_for("logout") }}">Logout</a>
-			{% endif %}
-		</div>
+<style type="text/css">
+	.center {
+		margin: 0;
+		position: relative;
+		top: 50%;
+		left: 50%;
+		-ms-transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%);
+	}
+</style>
+
+<body>
+	<div class="topnav">
+		<a class="active" href="{{ url_for('home')}}">Home</a>
+		<a href="{{ url_for('menu')}}">DH Menu</a>
+		<a href="{{ url_for('search')}}"><b>Search Now!</b></a>
 		{% if username=="" %}
+			<a href="{{ url_for('login')}}">Login Page</a>
+			<a href="{{ url_for('create')}}">Create Account</a>
+		{% else %}
+			<a href="{{ url_for('userSettings') }}">User Settings</a>
+			{% if username=="DHadmin" %}
+				<a href="{{ url_for('chooseDish') }}">Edit Tags</a>
+			{% endif %}
+			<a href="{{ url_for('logout') }}">Logout</a>
+		{% endif %}
+	</div>
+
+	{% if username=="" %}
 		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
 			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;overflow-y:auto;max-height:200px">
 				<h1>whereRUeating</h1>
 				<p style="color:white;">
-					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
-					As a freshman, trying to figure out what is currently available at the dining halls was difficult because it could only be seen as a single wall of text, which was only listed on the dining services website that required what felt like three hyperlinks to access.
-					It would be helpful and accessible, instead, to be able to open a site that listed all of the options in a more modern and user-friendly way. Moreover, there are many restaurants that are within walking distance of Rutgers, yet much of the Rutgers community is not aware of them.
-					By making each available dish more searchable by organizing them by tags and traits, students can search for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to go to.
+					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for
+					dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
+					As a freshman, trying to figure out what is currently available at the dining halls was difficult
+					because it could only be seen as a single wall of text, which was only listed on the dining services
+					website that required what felt like three hyperlinks to access.
+					It would be helpful and accessible, instead, to be able to open a site that listed all of the options in
+					a more modern and user-friendly way. Moreover, there are many restaurants that are within walking
+					distance of Rutgers, yet much of the Rutgers community is not aware of them.
+					By making each available dish more searchable by organizing them by tags and traits, students can search
+					for what food they want to eat and therefore decide what dining hall (or local restaurant) they want to
+					go to.
 				</p>
 			</div>
 		</div>
+		
 		<div class="container" style="padding:50px">
 			<h2>Features included!</h2>
 			<ul>
 				<li>Weekly dining hall menus</li>
+				<li>Search selection of meals by tag</li>
 				<li>Individual user settings/preferences</li>
-				<li>Selection of meals by tag</li>
+				<li>User favorite meals selection and view</li>
+				<li>Setting meal restrictions</li>
 			</ul>
 			<h2> MORE FEATURES TO COME! </h2>
 			<ul>
 				<li>Specific meal look up</li>
-				<li>Setting meal restrictions</li>
+				<li>Lookup of non-Rutgers Dining Hall restaurants</li>
 			</ul>
 			<br>
 		</div>
-		{% else %}
+	{% else %}
 		<div class="container">
 			<h1>Welcome back, {{ username }}!</h1>
 			<br>
 			<div>
-				Below you can see your favorite items. If the item is available this week you will be able to see where and when they are serving it!
+				Below you can see your favorite items. If the item is available this week you will be able to see where and
+				when they are serving it!
 			</div>
 			<br>
 			<div class="neutralColor">
 				<fieldset style="height:400px;width:400px;overflow-y:auto;">
-				<legend>Favorited Items</legend>
-				{% if not data['itemsDates'] %}
-				<div class="center">
-					<a href={{ url_for('userSettings') }}>SELECT SOME FAVORITE MEALS!</a>
-				</div>
-				{% else %}
-					{% for dish in data['itemsDates'] %}
-						{{dish.0}} <br>
-						{% if not dish.1 %}
-							&emsp;&emsp;- MEAL NOT AVAILABLE THIS WEEK!
-						{% else %}
-							{% for dateList in dish.1 %}
-								&emsp;&emsp;- {{ dateList.0 }} <br>
-								{% for dhMeal in dateList.1 %}
-									&emsp;&emsp;&emsp;&emsp;- {{ dhMeal.0 }} for {{ dhMeal.1 }} <br>
+					<legend>Favorited Items</legend>
+					{% if not data['itemsDates'] %}
+						<div class="center">
+							<a href={{ url_for('userSettings') }}>SELECT SOME FAVORITE MEALS!</a>
+						</div>
+					{% else %}
+						{% for dish in data['itemsDates'] %}
+							<b style="color:red"> {{dish.0}} </b> <br>
+							{% if not dish.1 %}
+								&emsp;&emsp;- MEAL NOT AVAILABLE THIS WEEK!
+							{% else %}
+								{% for dateList in dish.1 %}
+									&emsp;&emsp;- <b>{{ dateList.0 }}</b> <br>
+									{% for dhMeal in dateList.1 %}
+										&emsp;&emsp;&emsp;&emsp;- {{ dhMeal.0 }} for {{ dhMeal.1 }} <br>
+									{% endfor %}
 								{% endfor %}
-							{% endfor %}
-						{% endif %}
-						<hr>
-					{% endfor %}
-				{% endif %}
-			</fieldset>
+							{% endif %}
+							<hr>
+						{% endfor %}
+					{% endif %}
+				</fieldset>
 			</div>
 		</div>
-		{% endif %}
-	</body>	
+	{% endif %}
+</body>
+
 </html>

@@ -128,7 +128,7 @@ def userSettings():
         'favorites':fav_dish_list,
         'dishes':getAllMenuItems()
     }
-    print(data['favorites'])
+    
     return render_template('UserSettings.html', data=data)
 
 '''
@@ -185,7 +185,7 @@ def search():
     if request.method == 'POST':
         # extracts restaurants
         restaurants_included = request.form.getlist('restaurant')
-        if not bool(restaurants_included): restaurants_included = ['Livingston', 'Brower', 'Busch', 'Nielson']
+        if not bool(restaurants_included): restaurants_included = ['Livingston', 'Brower', 'Busch', 'Neilson']
 
         # extracts parameters to include and exclude  
         tag_exclude_list = list()
@@ -193,7 +193,7 @@ def search():
         for i in ITEMS_TO_CHECK:
             if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
             elif request.form.get(i) == 'include': tag_include_list.append(i)  
-        completeSearch = searchMenuItems(restaurants_included, tag_include_list, tag_exclude_list)       
+        completeSearch = searchMenuItems(restaurants_included, tag_include_list, tag_exclude_list)   
 
     data = {"username":username,
             "dates":dateParam,

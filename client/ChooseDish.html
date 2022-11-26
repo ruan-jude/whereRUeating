@@ -13,11 +13,14 @@
         <a href="{{ url_for('menu') }}">DH Menu</a>
         <a href="{{ url_for('search') }}"><b>Search Now!</b></a>
         <a href="{{ url_for('userSettings') }}">User Settings</a>
+        
         {% if data['username']=="DHadmin" %}
-        <a class="active" href="{{ url_for('chooseDish') }}">Edit Tags</a>
+            <a class="active" href="{{ url_for('chooseDish') }}">Edit Tags</a>
         {% endif %}
+        
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
+
     <form method="post">
         <div class="container">
             <h1>Select Dish</h1>

@@ -97,18 +97,19 @@
 
 <body>
   <div class="topnav">
-    <a href="{{ url_for("home")}}">Home</a>
-    <a href="{{ url_for("menu")}}">DH Menu</a>
-    <a class="active" href="{{ url_for("search")}}"><b>Search Now!</b></a>
+    <a href="{{ url_for('home')}}">Home</a>
+    <a href="{{ url_for('menu')}}">DH Menu</a>
+    <a class="active" href="{{ url_for('search')}}"><b>Search Now!</b></a>
+    
     {% if data['username']=="" %}
-    <a href="{{ url_for("login")}}">Login Page</a>
-    <a href="{{ url_for("create")}}">Create Account</a>
+      <a href="{{ url_for('login')}}">Login Page</a>
+      <a href="{{ url_for('create')}}">Create Account</a>
     {% else %}
-    <a href="{{ url_for("userSettings") }}">User Settings</a>
-    {% if data['username']=="DHadmin" %}
-    <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
-    {% endif %}
-    <a href="{{ url_for("logout") }}">Logout</a>
+      <a href="{{ url_for('userSettings') }}">User Settings</a>
+      {% if data['username']=="DHadmin" %}
+        <a href="{{ url_for('chooseDish') }}">Edit Tags</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}">Logout</a>
     {% endif %}
   </div>
 
@@ -135,9 +136,9 @@
                 data['restaurants_included'] %} checked {% endif %} />
               <label for="Busch">Busch</label>
 
-              <input type="checkbox" id="Nielson" name="restaurant" value="Nielson" {% if "Nielson" in
+              <input type="checkbox" id="Neilson" name="restaurant" value="Neilson" {% if "Neilson" in
                 data['restaurants_included'] %} checked {% endif %} />
-              <label for="Nielson">Nielson</label>
+              <label for="Neilson">Neilson</label>
             </div>
           </fieldset>
 
@@ -344,46 +345,45 @@
               </div>
             </div>
           </fieldset>
-        </div>
-        <div>
+        </div> 
+
+        <br>
+        
+        <div class="container">
           <button type="submit" onclick="onSubmit()">Search</button>
         </div>
       </form>
     </div>
-    <div class="right-col">
-      <div style="height:635px;overflow-y:auto;">
-        <div class="neutralColor">
-          {% if data['complete_search'] != False %}
-            {% for dh in data['restaurants_included'] %}
-              <fieldset>
-                <legend>{{dh}}</legend>
-                {% for DHmenu in data['complete_search'].values() %}
-                  {% for date in data['dates'] %}
-                    {% if DHmenu[date.0] != False %}
-                      {{date.1}}<br>
-                      {% for mealTime in data['meal_times'] %}
-                        {% if DHmenu[date.0][mealTime] != False %}
-                          &emsp;&emsp;- {{mealTime}}<br>
-                          {% for dish in DHmenu[date.0][mealTime] %}
-                            &emsp;&emsp;&emsp;&emsp;- {{dish}}<br>
-                          {% endfor %}
-                        {% endif %}
-                      {% endfor %}
-                    {% endif %}
-                  {% endfor %}
-                {% endfor %}
-              </fieldset>
-            {% endfor %}
-          {% else %}
-          <fieldset style="height:615px">
-            <legend>Search Results</legend>
-            <div class="center">
-              WAITING FOR SEARCH
-            </div>
-          </fieldset>
-          {% endif %}
-        </div>
 
+    <div class="right-col">
+      <div class="neutralColor" style="height:635px;">
+          <fieldset style="height:97%;overflow-y:auto;">
+            <legend>Search Results</legend>
+            {% if data['complete_search'] != False %}
+              {% for restaurant, restMenu in data['complete_search'].items() %}
+                <b style="color:red">{{restaurant}} </b><br>
+                {% for date in data['dates'] %}
+                  {% if restMenu[date.0] != False %}
+                    &emsp;&emsp;- <b>{{date.1}}</b><br>
+                    {% for mealTime in data['meal_times'] %}
+                      {% if restMenu[date.0][mealTime] != False %}
+                        &emsp;&emsp;&emsp;&emsp;- <i>{{mealTime}}</i><br>
+                        {% for dish in restMenu[date.0][mealTime] %}
+                          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;- {{dish}}<br>
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+                <hr>
+              {% endfor %}
+            {% else %}
+              <div class="center">
+                WAITING FOR SEARCH
+              </div>
+            {% endif %}
+            
+          </fieldset>
       </div>
     </div>
   </div>

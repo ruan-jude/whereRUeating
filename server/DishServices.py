@@ -4,9 +4,9 @@ from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 from server.AccountServices import get_user_preferences
 
 ITEMS_TO_CHECK = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
-DB_DH_STR = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Nielson":"Nielson DH"}
+DB_DH_STR = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Neilson":"Neilson DH"}
 MEAL_TIMES = ['breakfast', 'lunch', 'dinner']
-DB_DH_IDS = {1:"Brower DH", 2:"Livingston DH", 3:"Busch DH", 4:"Nielson DH"}
+DB_DH_IDS = {1:"Brower DH", 2:"Livingston DH", 3:"Busch DH", 4:"Neilson DH"}
 
 # ===== DISH FUNCTIONS =====
 '''
@@ -126,11 +126,10 @@ def getMenuItemsWithPreferences(restaurant_name, requested_date, meal_time, whit
     cursor, read_conn = setup_cursor("read")
     retrieved_date = requested_date 
     full_query = selectMenuItemsIncludingTags(whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(blacklist, restaurant_name, retrieved_date, meal_time)
-
     cursor.execute(full_query)
     result_set = isolate_first_value_from_tuple(cursor.fetchall())
-    
     read_conn.close()
+
     return result_set
 
 def searchMenuItems(restaurantsIncluded, whitelist, blacklist):    
@@ -147,7 +146,7 @@ def searchMenuItems(restaurantsIncluded, whitelist, blacklist):
                 if not bool(timeMenus[time]): timeMenus[time]=False
             if all(value == False for value in timeMenus.values()): restaurantMeals[dateID] = False
             else: restaurantMeals[dateID] = timeMenus
-        completeSearch[restaurant] = restaurantMeals
+        completeSearch[DB_DH_STR[restaurant]] = restaurantMeals
 
     return completeSearch
 

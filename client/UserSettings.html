@@ -95,14 +95,16 @@
 
 <body>
     <div class="topnav">
-        <a href="{{ url_for("home")}}">Home</a>
-        <a href="{{ url_for("menu")}}">DH Menu</a>
-        <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-        <a class="active" href="{{ url_for("userSettings") }}">User Settings</a>
+        <a href="{{ url_for('home')}}">Home</a>
+        <a href="{{ url_for('menu')}}">DH Menu</a>
+        <a href="{{ url_for('search')}}"><b>Search Now!</b></a>
+        <a class="active" href="{{ url_for('userSettings') }}">User Settings</a>
+
         {% if data['username']=="DHadmin" %}
-        <a href="{{ url_for("chooseDish") }}">Edit Tags</a>
+            <a href="{{ url_for('chooseDish') }}">Edit Tags</a>
         {% endif %}
-        <a href="{{ url_for("logout") }}">Logout</a>
+
+        <a href="{{ url_for('logout') }}">Logout</a>
     </div>
 
     <div class="container">
@@ -117,12 +119,12 @@
                     <fieldset>
                         <legend>Restaurant Type</legend>
                         <div>
-                            <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {%
-                                if "dining_hall" in data['include'] %} checked {% endif %} />
+                            <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall"
+                                in data['include'] %} checked {% endif %} />
                             <label for="dining_hall">Dining Hall</label>
 
-                            <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus"
-                                in data['include'] %} checked {% endif %} />
+                            <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in
+                                data['include'] %} checked {% endif %} />
                             <label for="off_campus">Off-Campus Restaurant</label>
 
                             <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {%
@@ -147,17 +149,17 @@
                     <fieldset>
                         <legend>Preferred Diet</legend>
                         <div>
-                            <input type="checkbox" id="vegan" name="diet" value="vegan" onclick="vegetarianUpdate()"
-                                {% if "vegan" in data['include'] %} checked {% endif %} />
+                            <input type="checkbox" id="vegan" name="diet" value="vegan" onclick="vegetarianUpdate()" {%
+                                if "vegan" in data['include'] %} checked {% endif %} />
                             <label for="vegan">Vegan</label>
 
                             <input type="checkbox" id="vegetarian" name="diet" value="vegetarian"
-                                onclick="vegetarianUpdate()" {% if "vegetarian" in data['include'] %} checked {%
-                                endif %} {% if "vegan" in data['include'] %} disabled {% endif %} />
+                                onclick="vegetarianUpdate()" {% if "vegetarian" in data['include'] %} checked {% endif
+                                %} {% if "vegan" in data['include'] %} disabled {% endif %} />
                             <label for="vegetarian">Vegetarian</label>
 
-                            <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in
-                                data['include'] %} checked {% endif %} />
+                            <input type="checkbox" id="halal" name="diet" value="halal" {% if "halal" in data['include']
+                                %} checked {% endif %} />
                             <label for="halal">Halal</label>
 
                             <input type="checkbox" id="kosher" name="diet" value="kosher" {% if "kosher" in
@@ -171,15 +173,13 @@
                         <div class="container">
                             <div>
                                 <label for="chicken">Chicken</label>
-                                <select name="chicken" id="chicken" {% if "vegetarian" in data['include'] or "vegan"
-                                    in data['include'] %} disabled {% endif %}>
+                                <select name="chicken" id="chicken" {% if "vegetarian" in data['include'] or "vegan" in
+                                    data['include'] %} disabled {% endif %}>
                                     <option value="none" {% if "chicken" not in data['include'] or "chicken" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "chicken" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "chicken" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "chicken" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "chicken" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -212,16 +212,14 @@
 
                             <div>
                                 <label for="seafood">Seafood</label>
-                                <select name="seafood" id="seafood" {% if "vegetarian" in data['include'] or "vegan"
-                                    in data['include'] %} disabled {% endif %}>
+                                <select name="seafood" id="seafood" {% if "vegetarian" in data['include'] or "vegan" in
+                                    data['include'] %} disabled {% endif %}>
                                     <option value="none" {% if "seafood" not in data['include'] or "seafood" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "seafood" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "seafood" in data['include'] %} selected {% endif %}>
                                         Include
                                     </option>
-                                    <option value="exclude" {% if "seafood" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "seafood" in data['exclude'] %} selected {% endif %}>
                                         Exclude
                                     </option>
                                 </select>
@@ -229,16 +227,14 @@
 
                             <div>
                                 <label for="dairy">Dairy</label>
-                                <select name="dairy" id="dairy" {% if "vegan" in data['include'] %} disabled {%
-                                    endif %}>
+                                <select name="dairy" id="dairy" {% if "vegan" in data['include'] %} disabled {% endif
+                                    %}>
                                     <option value="none" {% if "dairy" not in data['include'] or "dairy" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "dairy" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "dairy" in data['include'] %} selected {% endif %}>
                                         Include
                                     </option>
-                                    <option value="exclude" {% if "dairy" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "dairy" in data['exclude'] %} selected {% endif %}>
                                         Exclude
                                     </option>
                                 </select>
@@ -268,9 +264,8 @@
                             </div>
 
                             <div>
-                                <button type="button" id="none_button" onclick="updateMeats('none')" {%
-                                    if "vegetarian" in data['include'] or "vegan" in data['include'] %} disabled {%
-                                    endif %}>Reset
+                                <button type="button" id="none_button" onclick="updateMeats('none')" {% if "vegetarian"
+                                    in data['include'] or "vegan" in data['include'] %} disabled {% endif %}>Reset
                                     Meats</button>
                             </div>
                         </div>
@@ -284,11 +279,9 @@
                                 <select name="chinese" id="chinese">
                                     <option value="none" {% if "chinese" not in data['include'] or "chinese" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "chinese" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "chinese" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "chinese" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "chinese" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -298,11 +291,9 @@
                                 <select name="indian" id="indian">
                                     <option value="none" {% if "indian" not in data['include'] or "indian" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "indian" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "indian" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "indian" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "indian" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -312,11 +303,9 @@
                                 <select name="mexican" id="mexican">
                                     <option value="none" {% if "mexican" not in data['include'] or "mexican" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "mexican" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "mexican" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "mexican" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "mexican" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -326,11 +315,9 @@
                                 <select name="italian" id="italian">
                                     <option value="none" {% if "italian" not in data['include'] or "italian" not in
                                         data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "italian" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="include" {% if "italian" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "italian" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "italian" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -338,13 +325,11 @@
                             <div>
                                 <label for="japanese">Japanese</label>
                                 <select name="japanese" id="japanese">
-                                    <option value="none" {% if "japanese" not in data['include'] or "japanese" not
-                                        in data['exclude'] %} selected {% endif %}>--</option>
-                                    <option value="include" {% if "japanese" in data['include'] %} selected {% endif
-                                        %}>
+                                    <option value="none" {% if "japanese" not in data['include'] or "japanese" not in
+                                        data['exclude'] %} selected {% endif %}>--</option>
+                                    <option value="include" {% if "japanese" in data['include'] %} selected {% endif %}>
                                         Include</option>
-                                    <option value="exclude" {% if "japanese" in data['exclude'] %} selected {% endif
-                                        %}>
+                                    <option value="exclude" {% if "japanese" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -371,15 +356,15 @@
                         <legend>Favorited Dishes</legend>
 
                         {% for dish in data['dishes'] %}
-                        <div>
-                            <input type="checkbox" id={{ dish.0 }} name="favs" value={{ dish.0 }} 
-                                {% if dish.0 in data['favorites'] %} checked {% endif %}/>
-                            <label>{{ dish.1 }}</label>
-                        </div>
+                            <div>
+                                <input type="checkbox" id={{ dish.0 }} name="favs" value={{ dish.0 }} {% if dish.0 in
+                                    data['favorites'] %} checked {% endif %} />
+                                <label>{{ dish.1 }}</label>
+                            </div>
                         {% endfor %}
                     </fieldset>
                 </div>
-                    
+
             </div>
         </div>
 
