@@ -6,6 +6,7 @@ from server.AccountServices import get_user_preferences
 ITEMS_TO_CHECK = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
 DB_DH_STR = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Nielson":"Nielson DH"}
 MEAL_TIMES = ['breakfast', 'lunch', 'dinner']
+DB_DH_IDS = {1:"Brower DH", 2:"Livingston DH", 3:"Busch DH", 4:"Nielson DH"}
 
 # ===== DISH FUNCTIONS =====
 '''
@@ -109,7 +110,7 @@ FUNCTIONING
 def getMenuItemsWithUserPreferences(current_user_id, restaurant_name, requested_date, meal_time):
     user_whitelist, user_blacklist = get_user_preferences(current_user_id)
     cursor, read_conn = setup_cursor("read")
-    retrieved_date = requested_date #isolate_date(requested_date)
+    retrieved_date = requested_date
     full_query = selectMenuItemsIncludingTags(user_whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, restaurant_name, retrieved_date, meal_time)
 
     cursor.execute(full_query)
@@ -123,7 +124,7 @@ Gets menu items with the given whitelist and blacklist
 '''
 def getMenuItemsWithPreferences(restaurant_name, requested_date, meal_time, whitelist, blacklist):
     cursor, read_conn = setup_cursor("read")
-    retrieved_date = requested_date #isolate_date(requested_date)
+    retrieved_date = requested_date 
     full_query = selectMenuItemsIncludingTags(whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(blacklist, restaurant_name, retrieved_date, meal_time)
 
     cursor.execute(full_query)
@@ -132,7 +133,6 @@ def getMenuItemsWithPreferences(restaurant_name, requested_date, meal_time, whit
     read_conn.close()
     return result_set
 
-#TODO: Finish this later
 def searchMenuItems(restaurantsIncluded, whitelist, blacklist):    
     menuDays, _ = getDateStr()
     dateDatetimes = [(i, day[1]) for i, day in enumerate(menuDays)]
@@ -232,11 +232,14 @@ def getDateStr():
 
     rawMenuDays = [date[0] for date in result_set]
     menuDays = list()
+    # defaults to first day of the week
+    todayStr = ((calendar.day_name[rawMenuDays[0].weekday()] + ', ' + rawMenuDays[0].strftime('%B %d, %Y')), rawMenuDays[0])
     for day in rawMenuDays:
         dayStr = calendar.day_name[day.weekday()] + ', ' + day.strftime('%B %d, %Y')
         menuDays.append((dayStr, day))
 
         # gets string for today's date
+
         if day.strftime('%B/%d/%Y') == datetime.now().strftime('%B/%d/%Y'): 
             todayStr = (dayStr, day)
 
@@ -246,3 +249,48 @@ def isolate_date(raw_date):
     strdate = str(raw_date)
     return strdate[:10]
 # ===================
+
+# ===== USER FAVS FUNCTIONS =====
+'''
+Returns a list dateRes in the following format
+    [
+        (dateStr, 
+            [
+                (DHStr, meal_time),
+                ...,
+                (DHStr, meal_time)
+            ]
+        )
+    ]
+'''
+def getMealAvailability(dishID):
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT restaurant_id, date, meal_time FROM menuItems WHERE dish_id=? ORDER BY date, restaurant_id, meal_time", (dishID,))
+    result_set = cursor.fetchall()
+    read_conn.close()
+
+    # if no results, return None
+    if not result_set: return None
+
+    # gets menu days
+    menuDays, _ = getDateStr()
+    menuDaysStr = {day[1]:day[0] for day in menuDays}
+
+    # (DH_id, date.datetime, meal_time)
+    prevDate = None
+    dateRes, tempDateMenus = [], []
+    for ind, item in enumerate(result_set):
+        # if at the front of the array set prevDate
+        if ind == 0: prevDate = item[1]
+
+        # new date, append prev info to dateRes and reset tempDateMenus
+        if item[1] != prevDate:
+            dateRes.append((menuDaysStr[prevDate], tempDateMenus))
+            tempDateMenus = []
+        
+        tempDateMenus.append((DB_DH_IDS[item[0]], item[2]))
+        prevDate = item[1]
+    # used to add last date info into the res
+    dateRes.append((menuDaysStr[prevDate], tempDateMenus))
+
+    return dateRes

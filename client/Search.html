@@ -352,7 +352,7 @@
     </div>
     <div class="right-col">
       <div style="height:635px;overflow-y:auto;">
-        <div class="includeColor">
+        <div class="neutralColor">
           {% if data['complete_search'] != False %}
             {% for dh in data['restaurants_included'] %}
               <fieldset>
@@ -360,25 +360,30 @@
                 {% for DHmenu in data['complete_search'].values() %}
                   {% for date in data['dates'] %}
                     {% if DHmenu[date.0] != False %}
-                      &emsp;-{{date.1}}<br>
+                      {{date.1}}<br>
                       {% for mealTime in data['meal_times'] %}
                         {% if DHmenu[date.0][mealTime] != False %}
-                          &emsp;&emsp;-{{mealTime}}<br>
+                          &emsp;&emsp;- {{mealTime}}<br>
                           {% for dish in DHmenu[date.0][mealTime] %}
-                            &emsp;&emsp;&emsp;&emsp;-{{dish}}<br>
+                            &emsp;&emsp;&emsp;&emsp;- {{dish}}<br>
                           {% endfor %}
                         {% endif %}
                       {% endfor %}
                     {% endif %}
                   {% endfor %}
                 {% endfor %}
-                </fieldset>
+              </fieldset>
             {% endfor %}
           {% else %}
-          <fieldset style="height:615px"></fieldset>
+          <fieldset style="height:615px">
+            <legend>Search Results</legend>
+            <div class="center">
+              WAITING FOR SEARCH
+            </div>
+          </fieldset>
           {% endif %}
         </div>
-        
+
       </div>
     </div>
   </div>

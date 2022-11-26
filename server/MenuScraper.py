@@ -50,7 +50,7 @@ def _addCampusDishes(diningHallInt:int, menuDicts:dict):
             # if it doesn't exist, add it into dishes
             cursor.execute("SELECT name FROM dishes WHERE name=?", (dish,))
             if cursor.rowcount == 0:
-                cursor.execute("INSERT INTO dishes (name) VALUES (%s)", (dish,))
+                cursor.execute("INSERT IGNORE INTO dishes (name) VALUES (%s)", (dish,))
                 write_conn.commit()
 
             # gets the index of current dish
@@ -59,7 +59,7 @@ def _addCampusDishes(diningHallInt:int, menuDicts:dict):
             id = res[0]
 
             # add dish and date into menuItems table
-            cursor.execute("INSERT INTO menuItems (dish_id, restaurant_id, date, meal_time) VALUES (%d, %d, %s, %s)", (id, diningHallInt, day, meal[i]))
+            cursor.execute("INSERT IGNORE INTO menuItems (dish_id, restaurant_id, date, meal_time) VALUES (%d, %d, %s, %s)", (id, diningHallInt, day, meal[i]))
             write_conn.commit()
 
 

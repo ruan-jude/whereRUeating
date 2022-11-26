@@ -1,45 +1,46 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
-	<title>whereRUeating</title>
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>whereRUeating</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
-	<div class="topnav">
-		<a href="{{ url_for("home")}}">Home</a>
+    <div class="topnav">
+        <a href="{{ url_for("home")}}">Home</a>
         <a href="{{ url_for("menu")}}">DH Menu</a>
-		<a href="{{ url_for("search")}}"><b>Search Now!</b></a>
-		<a href="{{ url_for("userSettings") }}">User Settings</a>
-		{% if data['username']=="DHadmin" %}
-		<a class="active" href="{{ url_for("chooseDish") }}">Edit Tags</a>
-		{% endif %}
-		<a href="{{ url_for("logout") }}">Logout</a>
-	</div>
+        <a href="{{ url_for("search")}}"><b>Search Now!</b></a>
+        <a href="{{ url_for("userSettings") }}">User Settings</a>
+        {% if data['username']=="DHadmin" %}
+        <a class="active" href="{{ url_for("chooseDish") }}">Edit Tags</a>
+        {% endif %}
+        <a href="{{ url_for("logout") }}">Logout</a>
+    </div>
 
-	<form method="post">
+    <form method="post">
         <div class="container">
-			<h1>Editing Tags</h1>
-			<h2>Tags for "{{data['dishName']}}"</h2>
+            <h1>Editing Tags</h1>
+            <h2>Tags for "{{data['dishName']}}"</h2>
             <div class="neutralColor">
                 <legend>Tags</legend>
                 <div>
                     <fieldset style="overflow-y:auto;height:60vh">
                         {% for tag in data['tags'] %}
                         <div>
-                            <input type="checkbox" id={{tag}} name="tag" value={{tag}} {% if tag in data['dishTags'] %} checked {% endif %} /> 
+                            <input type="checkbox" id={{tag}} name="tag" value={{tag}} {% if tag in data['dishTags'] %}
+                                checked {% endif %} />
                             <label>{{tag}}</label>
                         </div>
                         {% endfor %}
                     </fieldset>
                 </div>
             </div>
-			<button type="submit">Save Changes</button>
-			<button type="button" onclick="location.href={{ url_for("chooseDish") }}">Back (Undo Changes)</button>
+            <button type="submit">Save Changes</button>
+            <button type="button" onclick="location.href={{ url_for('chooseDish') }}">Back (Undo Changes)</button>
         </div>
     </form>
-
 </body>
 
 </html>

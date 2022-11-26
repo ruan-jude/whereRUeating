@@ -18,7 +18,7 @@ def home():
         return redirect(url_for("userHome", username=session['username']))
     
     # else, go to generic home page
-    return render_template('Home.html', username="")
+    return render_template('Home.html', username="", data="")
 
 '''
 FUNCTIONING
@@ -27,7 +27,21 @@ FUNCTIONING
 def userHome(username):
     # if user is logged in, render user home page
     if 'loggedin' in session and username == session['username']:
-        return render_template('Home.html', username=session['username'])
+        username, userID = session['username'], session['id']
+        favoriteDishes=[(dishID, getDishName(dishID)) for dishID in getUserFavs(userID)]
+        
+        # each item is formatted (dishName, mealAvailability list)
+        itemsDates = list()
+        for (dishID, dishName) in favoriteDishes:
+            itemsDates.append((dishName, getMealAvailability(dishID)))
+        
+        # if no favoriteDishes, set to None
+        if not itemsDates: itemsDates = None
+        
+        data = {
+            'itemsDates':itemsDates
+        }
+        return render_template('Home.html', username=username, data=data)
 
     # else, go to generic home page
     return redirect(url_for('home'))
@@ -88,25 +102,33 @@ FUNCTIONING
 def userSettings():
     current_user_id = session['id']
     user_whitelist, user_blacklist = get_user_preferences(current_user_id)
+    fav_dish_list = getUserFavs(current_user_id)
    
     if request.method == 'POST':
         tag_exclude_list = list()
         tag_include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+        fav_dish_list = [int(fav) for fav in request.form.getlist('favs')]
         for i in ITEMS_TO_CHECK:
             if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
             elif request.form.get(i) == 'include': tag_include_list.append(i)
         
+        # updates user preferences
         clear_user_preferences(current_user_id)
         add_user_preferences(current_user_id, tag_include_list, tag_exclude_list)
         user_whitelist, user_blacklist = get_user_preferences(current_user_id)
 
-        flash('Updated preferences for %s!' % (session['username'],))
+        # updates user favorites dishes
+        clearUserFavs(current_user_id)
+        addUserFavs(current_user_id, fav_dish_list)
     
     data = {
         'username':session['username'],
         'include':user_whitelist,
-        'exclude':user_blacklist
+        'exclude':user_blacklist,
+        'favorites':fav_dish_list,
+        'dishes':getAllMenuItems()
     }
+    print(data['favorites'])
     return render_template('UserSettings.html', data=data)
 
 '''
@@ -115,15 +137,13 @@ FUNCTIONING
 '''
 @app.route('/ChooseDish/', methods=['GET', 'POST'])
 def chooseDish():
-    dishes = getAllMenuItems()
-
     if request.method == 'POST': 
         dish_id = request.form.get('dish')
         return redirect(url_for("editTags", dish_id=dish_id))
     
     data={
         'username':session['username'],
-        'dishes':dishes
+        'dishes':getAllMenuItems()
     }
     return render_template('ChooseDish.html', data=data)
 
@@ -150,6 +170,9 @@ def editTags(dish_id):
     }
     return render_template('EditTags.html', data=data)
 
+'''
+FUNCTIONING
+'''
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
     # TODO: add search meal bar to search specifically OR select meals to search
@@ -189,7 +212,7 @@ def menu():
     username = session['username'] if 'username' in session else ""
 
     # gets the dates for which we scraped menus
-    # menuDays = (dateStr, dateDatetime)
+    # menuDays = (dateStr, date.Datetime)
     menuDays, todayStr = getDateStr()
     dateParam = [(i, day[0]) for i, day in enumerate(menuDays)]
 

@@ -5,6 +5,17 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 	</head>
 
+	<style type="text/css">	  
+		.center {
+		  margin: 0;
+		  position: relative;
+		  top: 50%;
+		  left: 50%;
+		  -ms-transform: translate(-50%, -50%);
+		  transform: translate(-50%, -50%);
+		}
+	  </style>
+
 	<body>
 		<div class="topnav">
 			<a class="active" href="{{ url_for("home")}}">Home</a>
@@ -38,20 +49,48 @@
 			<ul>
 				<li>Weekly dining hall menus</li>
 				<li>Individual user settings/preferences</li>
+				<li>Selection of meals by tag</li>
 			</ul>
 			<h2> MORE FEATURES TO COME! </h2>
 			<ul>
 				<li>Specific meal look up</li>
-				<li>Selection of meals by tag</li>
 				<li>Setting meal restrictions</li>
 			</ul>
 			<br>
 		</div>
 		{% else %}
 		<div class="container">
-			{% block content %}
-				<p>Welcome back, {{ username }}!</p>
-			{% endblock %}
+			<h1>Welcome back, {{ username }}!</h1>
+			<br>
+			<div>
+				Below you can see your favorite items. If the item is available this week you will be able to see where and when they are serving it!
+			</div>
+			<br>
+			<div class="neutralColor">
+				<fieldset style="height:400px;width:400px;overflow-y:auto;">
+				<legend>Favorited Items</legend>
+				{% if not data['itemsDates'] %}
+				<div class="center">
+					<a href={{ url_for('userSettings') }}>SELECT SOME FAVORITE MEALS!</a>
+				</div>
+				{% else %}
+					{% for dish in data['itemsDates'] %}
+						{{dish.0}} <br>
+						{% if not dish.1 %}
+							&emsp;&emsp;- MEAL NOT AVAILABLE THIS WEEK!
+						{% else %}
+							{% for dateList in dish.1 %}
+								&emsp;&emsp;- {{ dateList.0 }} <br>
+								{% for dhMeal in dateList.1 %}
+									&emsp;&emsp;&emsp;&emsp;- {{ dhMeal.0 }} for {{ dhMeal.1 }} <br>
+								{% endfor %}
+							{% endfor %}
+						{% endif %}
+						<hr>
+					{% endfor %}
+				{% endif %}
+			</fieldset>
+			</div>
 		</div>
 		{% endif %}
 	</body>	

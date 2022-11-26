@@ -1,7 +1,7 @@
 import bcrypt, re
 from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
 
-# ===== ACCOUNT FUNCTIONS START =====
+# ===== ACCOUNT FUNCTIONS =====
 '''
 Checks whether account exists
     If exists, return True and (id, username, password)
@@ -87,17 +87,9 @@ def sanitize_info(email_input, username_input, password_input):
         return False, 'Please fill out the form!'
 
     return True
-# ===== ACCOUNT FUNCTIONS END =====
+# ==========
 
-# ===== USER PREFERENCES START =====
-'''
-User preferences for include and diet are obtained directly from HTML and combined
-FUNCTIONING
-'''
-def synthesize_whitelist(include_list, diet_list):
-    full_include_list = include_list + diet_list
-    return full_include_list
-
+# ===== USER PREFERENCES FUNCTIONS =====
 '''
 Inserts the whitelist and blacklist into userPreferences table
 FUNCTIONING
@@ -141,11 +133,57 @@ def clear_user_preferences(current_user_id):
     cursor.execute("DELETE FROM userPreferences WHERE user_id = ?", (current_user_id,))
     delete_conn.commit()
     delete_conn.close()
+# ==========
 
+# ===== USER FAVORITES =====
+'''
+Clear favorites of specified user
+'''
+def clearUserFavs(userID):
+    cursor, delete_conn = setup_cursor("write")
+    cursor.execute("DELETE FROM userFavs WHERE user_id=?", (userID,))
+    delete_conn.commit()
+    delete_conn.close()
+
+'''
+Returns the list of dish ids in the favorites list
+'''
+def getUserFavs(userID):
+    cursor, read_conn = setup_cursor("read")
+    cursor.execute("SELECT dish_id FROM userFavs WHERE user_id = ?", (userID,))
+    favDishes = cursor.fetchall()
+    read_conn.close()
+
+    return isolate_first_value_from_tuple(favDishes)
+
+'''
+Inserts the whitelist and blacklist into userPreferences table
+'''
+def addUserFavs(userID, favDishes):
+    cursor,write_conn = setup_cursor("write")
+
+    for dishIDs in favDishes:
+        cursor.execute("INSERT IGNORE INTO userFavs (user_id, dish_id) VALUES (?, ?)", (userID, dishIDs))
+
+    write_conn.commit()
+    write_conn.close()
+
+# ==============
+
+# ===== HELPER FUNCTIONS =====
 '''
 Isolates tags from all other information
 FUNCTIONING
 '''
 def isolate_tag_names(whitelist_result_set, blacklist_result_set):
     return isolate_first_value_from_tuple(whitelist_result_set), isolate_first_value_from_tuple(blacklist_result_set)
-# ===== USER PREFERENCES END =====
+
+'''
+User preferences for include and diet are obtained directly from HTML and combined
+FUNCTIONING
+'''
+def synthesize_whitelist(include_list, diet_list):
+    full_include_list = include_list + diet_list
+    return full_include_list
+
+# ==============
