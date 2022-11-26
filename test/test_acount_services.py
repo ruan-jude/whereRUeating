@@ -1,7 +1,10 @@
 import unittest
 import sys
 from unittest import mock
-import test.constants as constants
+if __name__ == '__main__':
+    import constants
+else:    
+    import test.constants as constants
 import mariadb
 
 sys.path.insert(1, constants.PATH_TO_PROJECT)

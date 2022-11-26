@@ -1,6 +1,9 @@
 import unittest
 import sys
-import test.constants as constants
+if __name__ == '__main__':
+    import constants
+else:    
+    import test.constants as constants
 
 sys.path.insert(1, constants.PATH_TO_PROJECT)
 from server.DatabaseServices import *
