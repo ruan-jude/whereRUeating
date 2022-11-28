@@ -19,6 +19,7 @@
 
 <body>
 	<div class="topnav">
+		<img src="images/horizontallogo.png" style="max-height: 75px;">
 		<a class="active" href="{{ url_for('home')}}">Home</a>
 		<a href="{{ url_for('menu')}}">DH Menu</a>
 		<a href="{{ url_for('search')}}"><b>Search Now!</b></a>
@@ -37,7 +38,7 @@
 	{% if username=="" %}
 		<div style="background: url(https://upload.wikimedia.org/wikipedia/commons/b/b3/Rutgers_University_promenade_on_College_Avenue_campus_across_from_student_center.JPG);padding:50px;background-position:center">
 			<div style="background:url('images/semitransparent-black.png');margin:50px;padding:20px;overflow-y:auto;max-height:200px">
-				<h1>whereRUeating</h1>
+				<h1 style="color:red">whereRUeating</h1>
 				<p style="color:white;">
 					&nbsp;<b>whereRUeating</b> is a website that aims to display a more descriptive and accessible menu for
 					dining options both on campus and off campus at Rutgers - New Brunswick. <br /> <br />
