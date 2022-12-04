@@ -1,295 +1,246 @@
 import calendar
 from datetime import datetime
-from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
-from server.AccountServices import get_user_preferences
-
-ITEMS_TO_CHECK = ['chicken', 'pork', 'beef', 'seafood', 'dairy', 'nuts', 'chinese', 'indian', 'mexican', 'italian', 'japanese', 'cafe']
-DB_DH_STR = {"Livingston":"Livingston DH", "Busch":"Busch DH", "Brower":"Brower DH", "Neilson":"Neilson DH"}
-MEAL_TIMES = ['breakfast', 'lunch', 'dinner']
-DB_DH_IDS = {1:"Brower DH", 2:"Livingston DH", 3:"Busch DH", 4:"Neilson DH"}
+from server.HelperMethods import *
+from server.DatabaseServices import *
+from server.AccountServices import *
 
 # ===== DISH FUNCTIONS =====
 '''
-Gets all tags associated with a given menu item
-FUNCTIONING
+Gets all menu items
 '''
-def getDishTags(dishID):
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT dishInfo.tag_name FROM dishInfo WHERE dishInfo.dish_id = ?", (dishID, ))
-    result_set = cursor.fetchall()
-    read_conn.close()
-    
-    return [tag[0] for tag in result_set]
+def getAllDishes():
+    query = "SELECT * FROM dishes"
 
-'''
-Inserts the tags of specified dish
-FUNCTIONING
-'''
-def addDishTags(dishID, dishTags):
-    cursor,write_conn = setup_cursor("write")
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query)
+    resultSet = cursor.fetchall()
+    readConn.close()
 
-    for tag in dishTags:
-        cursor.execute("INSERT IGNORE INTO dishInfo (dish_id, tag_name) VALUES (?, ?)", (dishID, tag))
-
-    write_conn.commit()
-    write_conn.close()
-
-'''
-Deletes tags of specified dish
-FUNCTIONING
-'''
-def clearDishTags(dishID):
-    cursor, delete_conn = setup_cursor("write")
-    cursor.execute("DELETE FROM dishInfo WHERE dish_id=?", (dishID,))
-    delete_conn.commit()
-    delete_conn.close()
+    return resultSet
 
 '''
 Gets name of the specified dish
-FUNCTIONING
 '''
 def getDishName(dishID):
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT dishes.name FROM dishes WHERE dishes.id = ?", (dishID, ))
-    result_set = cursor.fetchall()
-    read_conn.close()
+    query = "SELECT dishes.name FROM dishes WHERE dishes.id = ?"
 
-    return result_set[0][0]
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return resultSet[0][0]
+
+'''
+Gets all tags associated with a given dish
+'''
+def getDishTags(dishID):
+    query = "SELECT dishInfo.tag_name FROM dishInfo WHERE dishInfo.dish_id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(resultSet)
 
 '''
 Checks whether a dish id is valid
-FUNCTIONING
 '''
-def validDish(dishID):
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT * FROM dishes WHERE dishes.id = ?", (dishID, ))
-    result_set = cursor.fetchall()
-    read_conn.close()
+def checkValidDish(dishID):
+    query = "SELECT * FROM dishes WHERE dishes.id = ?"
 
-    if result_set == None or not result_set: return False
-    
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    if resultSet == None or not resultSet: return False
     return True
+
+'''
+Inserts the tags of specified dish
+'''
+def addDishTags(dishID, dishTags):
+    query = "INSERT IGNORE INTO dishInfo (dish_id, tag_name) VALUES (?, ?)"
+
+    cursor, writeConn = setupCursor("write")
+    for tag in dishTags:
+        cursor.execute(query, (dishID, tag))
+    writeConn.commit()
+    writeConn.close()
+
+'''
+Deletes tags of specified dish
+'''
+def clearDishTags(dishID):
+    query = "DELETE FROM dishInfo WHERE dish_id=?"
+
+    cursor, deleteConn = setupCursor("write")
+    cursor.execute(query, (dishID,))
+    deleteConn.commit()
+    deleteConn.close()
+
+'''
+Returns a list dateRes in the following format
+    [(dateStr, [(DHStr, meal_time), ..., (DHStr, meal_time)]), ..., (dateStr, [(DHStr, meal_time), ..., (DHStr, meal_time)])]
+'''
+def getDishAvailability(dishID):
+    query = "SELECT restaurant_id, date, meal_time FROM menuItems WHERE dish_id=? ORDER BY date, restaurant_id, meal_time"
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID,))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    # if no results, return None
+    if not resultSet: return None
+
+    # gets menu days
+    menuDays, _ = getDateStrings()
+    menuDaysStrings = {day[1]:day[0] for day in menuDays}
+
+    # (DH_id, date.datetime, meal_time)
+    prevDate = None
+    dateRes, tempDateMenus = [], []
+    for ind, item in enumerate(resultSet):
+        # if at the front of the array set prevDate
+        if ind == 0: prevDate = item[1]
+
+        # new date, append prev info to dateRes and reset tempDateMenus
+        if item[1] != prevDate:
+            dateRes.append((menuDaysStrings[prevDate], tempDateMenus))
+            tempDateMenus = []
+        
+        tempDateMenus.append((DB_DH_IDS[item[0]], item[2]))
+        prevDate = item[1]
+    # used to add last date info into the res
+    dateRes.append((menuDaysStrings[prevDate], tempDateMenus))
+
+    return dateRes
 # =======================
 
 # ===== MENU FUNCTIONS =====
 '''
-Gets all menu items
-FUNCTIONING
-'''
-def getAllMenuItems():
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT * FROM dishes")
-    result_set = cursor.fetchall()
-    read_conn.close()
-
-    return result_set
-
-'''
 Gets menu items at the given restaurant, on a given date, at a specific meal time
-FUNCTIONING
 '''
-def getMenuItems(restaurant_name, requested_date, meal_time):
-    cursor, read_conn = setup_cursor("read")
+def getMenuItems(restaurantName, requestedDate, mealTime):
     query = """SELECT dishes.name, menuItems.date, menuItems.meal_time 
             FROM menuItems 
             INNER JOIN dishes ON menuItems.dish_id = dishes.id 
             INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
             WHERE restaurants.name = ? AND menuItems.date = ? AND menuItems.meal_time = ?"""
-    cursor.execute(query, (restaurant_name, requested_date, meal_time))
-    result_set = cursor.fetchall() 
-    read_conn.close()
 
-    isolated_dish_names = isolate_first_value_from_tuple(result_set)
-    return isolated_dish_names
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (restaurantName, requestedDate, mealTime))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(resultSet)
 
 '''
 Gets menu items at the given restaurant, on a given date, at a specific meal time
-Includes user preferences
-FUNCTIONING
+Selects with whitelist and blacklist
 '''
-def getMenuItemsWithUserPreferences(current_user_id, restaurant_name, requested_date, meal_time):
-    user_whitelist, user_blacklist = get_user_preferences(current_user_id)
-    cursor, read_conn = setup_cursor("read")
-    retrieved_date = requested_date
-    full_query = selectMenuItemsIncludingTags(user_whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(user_blacklist, restaurant_name, retrieved_date, meal_time)
+def getMenuItemsWithPreferences(restaurantName, requestedDate, mealTime, userID=None, whitelist=None, blacklist=None):
+    if userID != None: whitelist, blacklist = getUserPreferences(userID)
 
-    cursor.execute(full_query)
-    result_set = isolate_first_value_from_tuple(cursor.fetchall())
+    included = selectMenuItemsWithTags(1, whitelist, restaurantName, requestedDate, mealTime)
+    excluded = selectMenuItemsWithTags(0, blacklist, restaurantName, requestedDate, mealTime)
+    fullQuery = included + " INTERSECT " + excluded
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(fullQuery)
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(resultSet)
+
+'''
+Gets menu items with either the included or excluded tags
+Selected from a given restaurant, on a specific date, at a specific time
+    tagType == 1 IF getting INCLUDED
+    tagType == 0 IF getting EXCLUDED
+'''
+def selectMenuItemsWithTags(tagType, tagList, restaurantName, requestedDate, mealTime):
+    baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
+        FROM menuItems 
+        INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
+        INNER JOIN dishes ON menuItems.dish_id = dishes.id 
+        INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
+        WHERE restaurants.name = '{restaurantName}' AND menuItems.date = '{requestedDate}' 
+        AND menuItems.meal_time = '{mealTime}'"""
     
-    read_conn.close()
-    return result_set
+    if bool(tagList):
+        baseQuery = baseQuery + " AND ("
+        for tag in tagList:
+            whereClause = ""
+            if tagList.index(tag) == 0:
+                whereClause = f"dishInfo.tag_name = '{tag}'" if tagType == 1 else f"dishInfo.tag_name <> '{tag}'"
+            else:
+                whereClause = f" OR dishInfo.tag_name = '{tag}'" if tagType == 1 else f" OR dishInfo.tag_name <> '{tag}'"
+            baseQuery = baseQuery + whereClause
+        baseQuery = baseQuery + ")"
+
+    return baseQuery
 
 '''
-Gets menu items with the given whitelist and blacklist
+Search for all dishes following given preferences
 '''
-def getMenuItemsWithPreferences(restaurant_name, requested_date, meal_time, whitelist, blacklist):
-    cursor, read_conn = setup_cursor("read")
-    retrieved_date = requested_date 
-    full_query = selectMenuItemsIncludingTags(whitelist, restaurant_name, retrieved_date, meal_time) + " INTERSECT " + selectMenuItemsExcludingTags(blacklist, restaurant_name, retrieved_date, meal_time)
-    cursor.execute(full_query)
-    result_set = isolate_first_value_from_tuple(cursor.fetchall())
-    read_conn.close()
-
-    return result_set
-
-def searchMenuItems(restaurantsIncluded, whitelist, blacklist):    
-    menuDays, _ = getDateStr()
+def searchForDish(restaurantsIncluded, whitelist, blacklist):    
+    menuDays, _ = getDateStrings()
     dateDatetimes = [(i, day[1]) for i, day in enumerate(menuDays)]
 
     completeSearch = dict()
     for restaurant in restaurantsIncluded:
         restaurantMeals = dict()
-        for (dateID, dateDatetime) in dateDatetimes:
+        for (dateID, date) in dateDatetimes:
             timeMenus = dict()
             for time in MEAL_TIMES:
-                timeMenus[time] = getMenuItemsWithPreferences(DB_DH_STR[restaurant], dateDatetime, time, whitelist, blacklist)
+                timeMenus[time] = getMenuItemsWithPreferences(DB_DH_STR[restaurant], date, time, whitelist, blacklist)
                 if not bool(timeMenus[time]): timeMenus[time]=False
             if all(value == False for value in timeMenus.values()): restaurantMeals[dateID] = False
             else: restaurantMeals[dateID] = timeMenus
         completeSearch[DB_DH_STR[restaurant]] = restaurantMeals
 
     return completeSearch
-
-'''
-Gets menu items with included tags
-FUNCTIONING
-'''
-def selectMenuItemsIncludingTags(tagList, dining_hall, requested_date, meal_time):
-    baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
-        FROM menuItems 
-        INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
-        INNER JOIN dishes ON menuItems.dish_id = dishes.id 
-        INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
-        WHERE restaurants.name = '{dining_hall}' AND menuItems.date = '{requested_date}' 
-        AND menuItems.meal_time = '{meal_time}'"""
-
-    if bool(tagList):
-        # I'm not proud of this: Passing in raw strings like this to queries is not a good idea.
-        # Always parameterize queries with inputs like this.   
-        baseQuery = baseQuery + " AND ("
-        for tag in tagList:
-            whereClause = ""
-            if tagList.index(tag) == 0:
-                whereClause = f"dishInfo.tag_name = '{tag}'"
-            else:
-                whereClause = f" OR dishInfo.tag_name = '{tag}'"
-            baseQuery = baseQuery + whereClause
-        baseQuery = baseQuery + ")"
-
-    return baseQuery
-
-'''
-Gets menu items with excluded tags
-FUNCTIONING
-'''
-def selectMenuItemsExcludingTags(tagList, dining_hall, requested_date, meal_time):
-    baseQuery = f"""SELECT dishes.name, dishInfo.tag_name, restaurants.name 
-        FROM menuItems 
-        INNER JOIN dishInfo ON menuItems.dish_id = dishInfo.dish_id 
-        INNER JOIN dishes ON menuItems.dish_id = dishes.id 
-        INNER JOIN restaurants ON restaurants.id = menuItems.restaurant_id 
-        WHERE restaurants.name = '{dining_hall}' AND menuItems.date = '{requested_date}' 
-        AND menuItems.meal_time = '{meal_time}'"""
-    
-    if bool(tagList): 
-        baseQuery = baseQuery + " AND ("
-        for tag in tagList:
-            whereClause = ""
-            if tagList.index(tag) == 0:
-                whereClause = f"dishInfo.tag_name <> '{tag}'"
-            else:
-                whereClause = f" OR dishInfo.tag_name <> '{tag}'"
-            baseQuery = baseQuery + whereClause
-        baseQuery = baseQuery + ")"
-
-    return baseQuery
 # ======================
 
 # ===== OTHER FUNCTIONS =====
 '''
 Gets all tag names
-FUNCTIONING
 '''
 def getAllTags():
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT tags.name FROM tags")
-    result_set = cursor.fetchall()
-    read_conn.close()
+    query = "SELECT tags.name FROM tags"
 
-    return [tag[0] for tag in result_set]
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query)
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(resultSet)
 
 '''
 Gets the menu dates that were scraped with connected strings
 Returns menuDays where each item = (dayStr, day)
-FUNCTIONING
 '''
-def getDateStr():
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT DISTINCT(date) from menuItems ORDER BY date")
-    result_set = cursor.fetchall()
-    read_conn.close()
+def getDateStrings():
+    query = "SELECT DISTINCT(date) from menuItems ORDER BY date"
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query)
+    resultSet = cursor.fetchall()
+    readConn.close()
 
-    rawMenuDays = [date[0] for date in result_set]
+    rawMenuDays = isolateFirstValueFromTuple(resultSet)
     menuDays = list()
-    # defaults to first day of the week
-    todayStr = ((calendar.day_name[rawMenuDays[0].weekday()] + ', ' + rawMenuDays[0].strftime('%B %d, %Y')), rawMenuDays[0])
+    todayString = ((calendar.day_name[rawMenuDays[0].weekday()] + ', ' + rawMenuDays[0].strftime('%B %d, %Y')), rawMenuDays[0])  # defaults to first day of the week
+
     for day in rawMenuDays:
-        dayStr = calendar.day_name[day.weekday()] + ', ' + day.strftime('%B %d, %Y')
-        menuDays.append((dayStr, day))
+        dayString = calendar.day_name[day.weekday()] + ', ' + day.strftime('%B %d, %Y')
+        menuDays.append((dayString, day))
 
         # gets string for today's date
-
         if day.strftime('%B/%d/%Y') == datetime.now().strftime('%B/%d/%Y'): 
-            todayStr = (dayStr, day)
+            todayString = (dayString, day)
 
-    return menuDays, todayStr
-
-def isolate_date(raw_date):
-    strdate = str(raw_date)
-    return strdate[:10]
+    return menuDays, todayString
 # ===================
-
-# ===== USER FAVS FUNCTIONS =====
-'''
-Returns a list dateRes in the following format
-    [
-        (dateStr, 
-            [
-                (DHStr, meal_time),
-                ...,
-                (DHStr, meal_time)
-            ]
-        )
-    ]
-'''
-def getMealAvailability(dishID):
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT restaurant_id, date, meal_time FROM menuItems WHERE dish_id=? ORDER BY date, restaurant_id, meal_time", (dishID,))
-    result_set = cursor.fetchall()
-    read_conn.close()
-
-    # if no results, return None
-    if not result_set: return None
-
-    # gets menu days
-    menuDays, _ = getDateStr()
-    menuDaysStr = {day[1]:day[0] for day in menuDays}
-
-    # (DH_id, date.datetime, meal_time)
-    prevDate = None
-    dateRes, tempDateMenus = [], []
-    for ind, item in enumerate(result_set):
-        # if at the front of the array set prevDate
-        if ind == 0: prevDate = item[1]
-
-        # new date, append prev info to dateRes and reset tempDateMenus
-        if item[1] != prevDate:
-            dateRes.append((menuDaysStr[prevDate], tempDateMenus))
-            tempDateMenus = []
-        
-        tempDateMenus.append((DB_DH_IDS[item[0]], item[2]))
-        prevDate = item[1]
-    # used to add last date info into the res
-    dateRes.append((menuDaysStr[prevDate], tempDateMenus))
-
-    return dateRes

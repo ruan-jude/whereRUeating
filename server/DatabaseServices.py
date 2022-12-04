@@ -5,29 +5,27 @@ import server.ServerConstants as ServerConstants
 Creates a connection to the database
 FUNCTIONING
 '''
-def setup_cursor(mode):
-    db_user = ""
-    db_pwd = ""
+def setupCursor(mode):
+    dbUser = ""
+    dbPwd = ""
    
     if mode == "read":
-        db_user = ServerConstants.READER_USERNAME
-        db_pwd = ServerConstants.READER_PASSWORD
-        #print("establishing read connection with db reader")
+        dbUser = ServerConstants.READER_USERNAME
+        dbPwd = ServerConstants.READER_PASSWORD
     elif mode == "write":
-        db_user = ServerConstants.WRITER_USERNAME
-        db_pwd = ServerConstants.WRITER_PASSWORD
+        dbUser = ServerConstants.WRITER_USERNAME
+        dbPwd = ServerConstants.WRITER_PASSWORD
     elif mode == "test":
-        db_user = ServerConstants.TESTING_USERNAME
-        db_pwd = ServerConstants.TESTING_PASSWORD
-    elif mode == "user_preferences":
-        db_user = ServerConstants.USER_PREFERENCE_USERNAME
-        db_pwd = ServerConstants.USER_PREFERENCE_PASSWORD
+        dbUser = ServerConstants.TESTING_USERNAME
+        dbPwd = ServerConstants.TESTING_PASSWORD
+    elif mode == "userPreferences":
+        dbUser = ServerConstants.USER_PREFERENCE_USERNAME
+        dbPwd = ServerConstants.USER_PREFERENCE_PASSWORD
     
     try:
         conn = mariadb.connect(
-            user = db_user,
-            password = db_pwd,
-            #host="",
+            user = dbUser,
+            password = dbPwd,
             port = 3306,
             database = "whereRUeating"
         )
@@ -37,12 +35,5 @@ def setup_cursor(mode):
         print(f"Error connecting to MariaDB Platform: {e}")
     
     cursor = conn.cursor()
-    return cursor,conn    
-
-'''
-Extracts only the first values from a tuple
-FUNCTIONING
-'''
-def isolate_first_value_from_tuple(result_set):
-    return [tup[0] for tup in result_set]
+    return cursor, conn    
 

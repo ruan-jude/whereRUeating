@@ -58,7 +58,7 @@
 
     <div class="container">
         <h1>Dining Hall Menu</h1>
-        <h2>{{data['dining_hall']}} menu - {{data['meal_time']}}</h2>
+        <h2>{{data['diningHall']}} menu - {{data['mealTime']}}</h2>
     </div>
 
     <div class="wrap">
@@ -70,7 +70,7 @@
                         <select name="date" id="date">
                             {% for date in data['dates'] %}
                                 <option id={{date[0]}} value={{date[0]}} name="date" 
-                                    {% if date[1]==data['current_day'] %}selected{% endif %}>{{date[1]}}</option>
+                                    {% if date[1]==data['currentDay'] %}selected{% endif %}>{{date[1]}}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -80,11 +80,11 @@
                     <div>
                         <label for="meal">Meal Time: </label>
                         <select name="meal" id="meal">
-                            <option value="breakfast" name="meal" {% if data['meal_time']=="breakfast" %}selected{%
+                            <option value="breakfast" name="meal" {% if data['mealTime']=="breakfast" %}selected{%
                                 endif %}>Breakfast</option>
-                            <option value="lunch" name="meal" {% if data['meal_time']=="lunch" %}selected{% endif %}>
+                            <option value="lunch" name="meal" {% if data['mealTime']=="lunch" %}selected{% endif %}>
                                 Lunch</option>
-                            <option value="dinner" name="meal" {% if data['meal_time']=="dinner" %}selected{% endif %}>
+                            <option value="dinner" name="meal" {% if data['mealTime']=="dinner" %}selected{% endif %}>
                                 Dinner</option>
                         </select>
                     </div>
@@ -94,16 +94,16 @@
                     <div>
                         <label for="dining_hall">Dining Hall: </label>
                         <select name="dining_hall" id="dining_hall">
-                            <option value="Livingston" {% if data['dining_hall']=="Livingston DH" %}selected{% endif %}>
+                            <option value="Livingston" {% if data['diningHall']=="Livingston DH" %}selected{% endif %}>
                                 Livingston DH
                             </option>
-                            <option value="Brower" {% if data['dining_hall']=="Brower DH" %}selected{% endif %}>
+                            <option value="Brower" {% if data['diningHall']=="Brower DH" %}selected{% endif %}>
                                 Brower DH
                             </option>
-                            <option value="Busch" {% if data['dining_hall']=="Busch DH" %}selected{% endif %}>
+                            <option value="Busch" {% if data['diningHall']=="Busch DH" %}selected{% endif %}>
                                 Busch DH
                             </option>
-                            <option value="Neilson" {% if data['dining_hall']=="Neilson DH" %}selected{% endif %}>
+                            <option value="Neilson" {% if data['diningHall']=="Neilson DH" %}selected{% endif %}>
                                 Neilson DH
                             </option>
                         </select>
@@ -130,7 +130,7 @@
         
         <div class="right-col">
             <fieldset style="overflow-y:auto;height:400px">
-                {% if data['menu_empty'] == False %}
+                {% if data['menu'] == None %}
                     <div class="center">
                         NO MENU FOR SELECTED PREFERENCES
                     </div>

@@ -1,138 +1,145 @@
 import bcrypt, re
-from server.DatabaseServices import setup_cursor, isolate_first_value_from_tuple
+from server.HelperMethods import *
+from server.DatabaseServices import *
 
-# ===== ACCOUNT FUNCTIONS =====
+# ===== ACCOUNT CREATION =====
 '''
 Checks whether account exists
     If exists, return True and (id, username, password)
     Else, returns False and error msg
-FUNCTIONING`
 '''
-def authenticate_account(username_input, password_input):
-    cursor,read_conn = setup_cursor("read")
-    cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
-    result_set = cursor.fetchall()
+def authenticateAccount(usernameInput, passwordInput):
+    query = "SELECT * FROM users WHERE username=?"
 
-    if result_set==None or not result_set: 
-        read_conn.close()
-        return False, "User does not exist"
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query , (usernameInput,))
+    resultSet = cursor.fetchall()
+    readConn.close()
 
-    retrieved_hash = result_set[0][3]
-    password_matches = bcrypt.checkpw(password_input.encode('utf-8'), retrieved_hash.encode('utf-8'))
-    read_conn.close()
+    # checks if user exists
+    if resultSet == None or not resultSet: return False, "User does not exist"
 
-    if password_matches:
-        return True, result_set[0]
-    else:
-        return False, 'Incorrect login'
+    # checks if passwords match
+    retrievedHash = resultSet[0][3]
+    passwordMatches = bcrypt.checkpw(passwordInput.encode('utf-8'), retrievedHash.encode('utf-8'))
+
+    if passwordMatches: return True, resultSet[0]
+    return False, 'Incorrect login'
 
 '''
 Checks whether inputed account info is valid
     If exists, return True and success msg
     Else, return False and error msg
-FUNCTIONING
 '''
-def create_account(email_input, username_input, password_input, confirm_input):
-    cursor,write_conn = setup_cursor("write")
+def createAccount(emailInput, usernameInput, passwordInput, confirmInput):
+    query1 = "SELECT email FROM users WHERE email=?"
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query1, (emailInput,))
+    rowCount = cursor.rowcount
+    readConn.close()
 
-    # database call that searches if someone already has that login
-    cursor.execute("SELECT email FROM users WHERE email=?", (email_input,))
-    if cursor.rowcount != 0:
-        write_conn.close()
-        return False, 'Account with that email already exists!'
+    # == Account validity check ==
+    if rowCount != 0: return False, 'Account with that email already exists!'
 
-    check_input = sanitize_info(email_input, username_input, password_input)
-    if check_input != True:
-        write_conn.close()
-        return check_input
+    checkInput = sanitizeInfo(emailInput, usernameInput, passwordInput)
+    if checkInput != True: return checkInput
 
-    # checks if the passwords match, if not return error msg
-    if password_input != confirm_input:
-        write_conn.close()
-        return False, 'Passwords do not match!'
+    if passwordInput != confirmInput: return False, 'Passwords do not match!'
+    # =====
 
     # hashes the password
     salt = bcrypt.gensalt()
-    hash = bcrypt.hashpw(password_input.encode('utf-8'), salt)
+    hash = bcrypt.hashpw(passwordInput.encode('utf-8'), salt)
 
-    # inserts into the database
-    cursor.execute("INSERT INTO users (email, username, password) VALUES (?,?,?)", (email_input, username_input, hash))
+    # inserts user information into database
+    query2 = "INSERT INTO users (email, username, password) VALUES (?,?,?)"
+    cursor, writeConn = setupCursor("write")
+    cursor.execute(query2, (emailInput, usernameInput, hash))
+    writeConn.commit()
+    writeConn.close()
+
+    # gets the id and username of the new user
+    query3 = "SELECT * FROM users WHERE username=?"
+    cursor,readConn = setupCursor("read")
+    cursor.execute(query3, (usernameInput,))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    # adding user role to new user in userRoles table
+    query4 = "INSERT INTO userRoles (user_id, role_id) VALUES (?, ?)"
+    cursor,write_conn = setupCursor("write")
+    cursor.execute(query4, (resultSet[0][0], 3))
     write_conn.commit()
     write_conn.close()
-
-    # gets the information for the user
-    cursor,read_conn = setup_cursor("read")
-    cursor.execute("SELECT * FROM users WHERE username=?", (username_input,))
-    result_set = cursor.fetchall()
-    read_conn.close()
-    return True, result_set[0]
+    
+    return True, resultSet[0]
 
 '''
 Checks validity of email, username, and password inputed
-FUNCTIONING
 '''
-def sanitize_info(email_input, username_input, password_input):
-    if len(email_input) > 128:
+def sanitizeInfo(emailInput, usernameInput, passwordInput):
+    if len(emailInput) > 128:
         return False, "Email too long"
-    elif len(username_input) > 32:
+    elif len(usernameInput) > 32:
         return False, "Username too long"
-    elif len(password_input) < 8:
+    elif len(passwordInput) < 8:
         return False, "Password cannot be less than 8 characters long"
 
-    if not re.match(r'[^@]+@[^@]+\.[^@]+', email_input):
+    if not re.match(r'[^@]+@[^@]+\.[^@]+', emailInput):
         return False, 'Invalid email address!'
-    elif not re.match(r'[A-Za-z0-9]+', username_input):
+    elif not re.match(r'[A-Za-z0-9]+', usernameInput):
         return False, 'Username must contain only characters and numbers!'
-    elif not username_input or not password_input or not email_input:
+    elif not usernameInput or not passwordInput or not emailInput:
         return False, 'Please fill out the form!'
 
     return True
-# ==========
+# ===============
 
-# ===== USER PREFERENCES FUNCTIONS =====
+# ===== USER PREFERENCES =====
 '''
 Inserts the whitelist and blacklist into userPreferences table
-FUNCTIONING
 '''
-def add_user_preferences(current_user_id, whitelist, blacklist):
-    cursor,write_conn = setup_cursor("write")
+def addUserPreferences(currUserID, whitelist, blacklist):
+    cursor, writeConn = setupCursor("write")
 
+    whitelistQuery = "INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)"
     for tag in whitelist:
-        cursor.execute("INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)", (current_user_id, tag, 0))
+        cursor.execute(whitelistQuery, (currUserID, tag, 0))
 
+    blacklistQuery = "INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)"
     for tag in blacklist:
-        cursor.execute("INSERT IGNORE INTO userPreferences (user_id, tag_name, exclude) VALUES (?, ?, ?)", (current_user_id, tag, 1))
+        cursor.execute(blacklistQuery, (currUserID, tag, 1))
 
-    write_conn.commit()
-    write_conn.close()
+    writeConn.commit()
+    writeConn.close()
 
 '''
 Returns the whitelist (where exclude = 0)  and the blacklist (where exclude = 1) of the specified user
-FUNCTIONING
 '''
-def get_user_preferences(current_user_id):
-    cursor, read_conn = setup_cursor("read")
+def getUserPreferences(currUserID):
+    cursor, readConn = setupCursor("read")
     
-    # whitelist query
-    cursor.execute("SELECT tag_name FROM userPreferences WHERE exclude = false AND user_id = ?", (current_user_id,))
-    whitelist_result_set = cursor.fetchall()
+    whitelistQuery = "SELECT tag_name FROM userPreferences WHERE exclude = false AND user_id = ?"
+    cursor.execute(whitelistQuery, (currUserID,))
+    whitelistResultSet = cursor.fetchall()
 
-    # blacklist query
-    cursor.execute("SELECT tag_name FROM userPreferences WHERE exclude = true AND user_id = ?", (current_user_id,))
-    blacklist_result_set = cursor.fetchall()
+    blacklistQuery = "SELECT tag_name FROM userPreferences WHERE exclude = true AND user_id = ?"
+    cursor.execute(blacklistQuery, (currUserID,))
+    blacklistResultSet = cursor.fetchall()
 
-    read_conn.close()
-    return isolate_tag_names(whitelist_result_set, blacklist_result_set)
+    readConn.close()
+    return isolateTagNames(whitelistResultSet, blacklistResultSet)
 
 '''
 Deletes preferences of specified user
-FUNCTIONING
 '''
-def clear_user_preferences(current_user_id):
-    cursor, delete_conn = setup_cursor("user_preferences")
-    cursor.execute("DELETE FROM userPreferences WHERE user_id = ?", (current_user_id,))
-    delete_conn.commit()
-    delete_conn.close()
+def clearUserPreferences(currUserID):
+    query = "DELETE FROM userPreferences WHERE user_id = ?"
+
+    cursor, deleteConn = setupCursor("userPreferences")
+    cursor.execute(query, (currUserID,))
+    deleteConn.commit()
+    deleteConn.close()
 # ==========
 
 # ===== USER FAVORITES =====
@@ -140,50 +147,91 @@ def clear_user_preferences(current_user_id):
 Clear favorites of specified user
 '''
 def clearUserFavs(userID):
-    cursor, delete_conn = setup_cursor("write")
-    cursor.execute("DELETE FROM userFavs WHERE user_id=?", (userID,))
-    delete_conn.commit()
-    delete_conn.close()
+    query = "DELETE FROM userFavs WHERE user_id=?"
+
+    cursor, deleteConn = setupCursor("write")
+    cursor.execute(query, (userID,))
+    deleteConn.commit()
+    deleteConn.close()
 
 '''
 Returns the list of dish ids in the favorites list
 '''
 def getUserFavs(userID):
-    cursor, read_conn = setup_cursor("read")
-    cursor.execute("SELECT dish_id FROM userFavs WHERE user_id = ?", (userID,))
-    favDishes = cursor.fetchall()
-    read_conn.close()
+    query = "SELECT dish_id FROM userFavs WHERE user_id = ?"
 
-    return isolate_first_value_from_tuple(favDishes)
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (userID,))
+    favDishes = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(favDishes)
 
 '''
 Inserts the whitelist and blacklist into userPreferences table
 '''
 def addUserFavs(userID, favDishes):
-    cursor,write_conn = setup_cursor("write")
-
+    query = "INSERT IGNORE INTO userFavs (user_id, dish_id) VALUES (?, ?)"
+    
+    cursor, writeConn = setupCursor("write")
     for dishIDs in favDishes:
-        cursor.execute("INSERT IGNORE INTO userFavs (user_id, dish_id) VALUES (?, ?)", (userID, dishIDs))
-
-    write_conn.commit()
-    write_conn.close()
+        cursor.execute(query, (userID, dishIDs))
+    writeConn.commit()
+    writeConn.close()
 
 # ==============
 
-# ===== HELPER FUNCTIONS =====
+# ===== GENERAL USERS =====
 '''
-Isolates tags from all other information
-FUNCTIONING
+Gets user ids and usernames
 '''
-def isolate_tag_names(whitelist_result_set, blacklist_result_set):
-    return isolate_first_value_from_tuple(whitelist_result_set), isolate_first_value_from_tuple(blacklist_result_set)
+def getAllUsers():
+    query = "SELECT id, username FROM users"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query)
+    users = cursor.fetchall()
+    readConn.close()
+
+    return users
+    
+'''
+Gets user role id
+'''
+def getUserRole(userID):
+    query = "SELECT role_id FROM userRoles WHERE user_id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (userID,))
+    userRole = cursor.fetchall()
+    readConn.close()
+
+    return userRole[0][0]
 
 '''
-User preferences for include and diet are obtained directly from HTML and combined
-FUNCTIONING
+Checks whether a user id is valid
 '''
-def synthesize_whitelist(include_list, diet_list):
-    full_include_list = include_list + diet_list
-    return full_include_list
+def validUser(userID):
+    query = "SELECT * FROM users WHERE id = ?"
 
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (userID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    if resultSet == None or not resultSet: return False
+    return True
+
+'''
+Get username attached to user_id
+'''
+def getUsername(userID):
+    query = "SELECT username FROM users WHERE id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (userID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return resultSet[0][0]
 # ==============

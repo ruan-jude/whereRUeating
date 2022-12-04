@@ -21,17 +21,23 @@
 	<div class="topnav">
 		<img src="{{ url_for('static', filename='images/minimallogo.png') }}"  style="height:100%;">
 		<a class="active" href="{{ url_for('home')}}">Home</a>
-		<a href="{{ url_for('menu')}}">DH Menu</a>
-		<a href="{{ url_for('search')}}">Search Now!</a>
-		{% if username=="" %}
-			<a href="{{ url_for('login')}}">Login Page</a>
-			<a href="{{ url_for('create')}}">Create Account</a>
+		{% if data['userRole'] == 1 %}
+		<a href="{{ url_for('chooseUser')}}">Edit Users</a>
+		<a href="{{ url_for('logout') }}">Logout</a>
 		{% else %}
-			<a href="{{ url_for('userSettings') }}">User Settings</a>
-			{% if username=="DHadmin" %}
-				<a href="{{ url_for('chooseDish') }}">Edit Tags</a>
+			<a href="{{ url_for('menu')}}">DH Menu</a>
+			<a href="{{ url_for('search')}}">Search Now!</a>
+			{% if username=="" %}
+				<a href="{{ url_for('login')}}">Login Page</a>
+				<a href="{{ url_for('create')}}">Create Account</a>
+			{% else %}
+				<a href="{{ url_for('userSettings') }}">User Settings</a>
+				{% if username=="DHadmin" %}
+					<a href="{{ url_for('chooseDish') }}">Edit Tags</a>
+				{% endif %}
+				<a href="{{ url_for('logout') }}">Logout</a>
 			{% endif %}
-			<a href="{{ url_for('logout') }}">Logout</a>
+
 		{% endif %}
 	</div>
 
@@ -71,21 +77,34 @@
 			</ul>
 			<br>
 		</div>
-	{% else %}
+	{% elif username== "admin" %}
 		<div class="container">
 			<h1>Welcome back, {{ username }}!</h1>
 			<br>
 			<div>
+				This account has the ability to update user roles.
+			</div>
+		</div>
+	{% else %}
+		<div class="container" style="height:625px">
+			<h1>Welcome back, {{ username }}!</h1>
+			<br>
+			<div>
 				Below you can see your favorite items. If the item is available this week you will be able to see where and
-				when they are serving it!
+				when they are serving it!<br>
+				You will also see restaurants that fit within your preferred cuisines!
 			</div>
 			<br>
-			<div class="neutralColor">
-				<fieldset style="height:400px;width:400px;overflow-y:auto;">
+			<div style="max-height:100%;width:450px;">
+				{% if data['restaurants'] == None %}
+                <fieldset style="height:100%;overflow-y:auto;">
+                {% else %}
+                <fieldset style="height:45%;overflow-y:auto;">
+                {% endif %}
 					<legend>Favorited Items</legend>
 					{% if not data['itemsDates'] %}
 						<div class="center">
-							<a href={{ url_for('userSettings') }}>SELECT SOME FAVORITE MEALS!</a>
+							<a href={{ url_for('userSesttings') }}>SELECT SOME FAVORITE MEALS!</a>
 						</div>
 					{% else %}
 						{% for dish in data['itemsDates'] %}
@@ -104,6 +123,19 @@
 						{% endfor %}
 					{% endif %}
 				</fieldset>
+
+				{% if data['restaurants'] != None %}
+					<br>
+                    <fieldset style="height:45%;overflow-y:auto;">
+                        <legend>Off Campus Restaurants</legend>
+                        {% for key in data['restaurants'] %}
+                            <b style="color:red">{{key}} </b><br>
+                            &emsp;&emsp; {{data['restaurants'][key]}}
+                            <hr>
+                        {% endfor %}
+                    </fieldset>
+                    <br>
+                {% endif %}
 			</div>
 		</div>
 	{% endif %}

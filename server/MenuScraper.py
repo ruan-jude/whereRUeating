@@ -39,7 +39,7 @@ def getDiningHallInfo(URLprefix: str = 'http://menuportal.dining.rutgers.edu/Foo
 Updates dishes and menuItems tables
 '''
 def _addCampusDishes(diningHallInt:int, menuDicts:dict):
-    cursor, write_conn = setup_cursor("write")
+    cursor, write_conn = setupCursor("write")
 
     for day in menuDicts:
         menuDict = menuDicts[day]
@@ -123,7 +123,7 @@ def _getDateMenus(URL: str, URLprefix: str = 'http://menuportal.dining.rutgers.e
 Deletes all items from menuItems table
 '''
 def clearMenuItemsTable():
-    cursor, write_conn = setup_cursor("write")
+    cursor, write_conn = setupCursor("write")
     cursor.execute("DELETE FROM menuItems")
     write_conn.commit()
 

@@ -116,37 +116,8 @@
     <form method="post">
         <div class="wrap">
             <div class="left-col">
-                <div class="neutralColor" style="height:100%">
-                    <fieldset>
-                        <legend>Restaurant Type</legend>
-                        <div>
-                            <input type="checkbox" id="dining_hall" name="tag" value="dining_hall" {% if "dining_hall"
-                                in data['include'] %} checked {% endif %} />
-                            <label for="dining_hall">Dining Hall</label>
-
-                            <input type="checkbox" id="off_campus" name="tag" value="off_campus" {% if "off_campus" in
-                                data['include'] %} checked {% endif %} />
-                            <label for="off_campus">Off-Campus Restaurant</label>
-
-                            <input type="checkbox" id="takeout_allowed" name="tag" value="takeout" {%
-                                if "takeout_allowed" in data['include'] %} checked {% endif %} />
-                            <label for="takeout_allowed">Has Takeout</label>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Payment</legend>
-                        <div>
-                            <input type="checkbox" id="meal_swipe_allowed" name="tag" value="meal_swipe_allowed" {%
-                                if "meal_swipe_allowed" in data['include'] %} checked {% endif %} />
-                            <label for="meal_swipe_allowed">Accepts Meal Swipes</label>
-
-                            <input type="checkbox" id="ru_express_allowed" name="tag" value="ru_express_allowed" {%
-                                if "ru_express_allowed" in data['include'] %} checked {% endif %} />
-                            <label for="ru_express_allowed">Accepts RU Express</label>
-                        </div>
-                    </fieldset>
-
+                <div class="neutralColor">        
+                    <!-- PREFERRED DIET -->
                     <fieldset>
                         <legend>Preferred Diet</legend>
                         <div>
@@ -169,6 +140,7 @@
                         </div>
                     </fieldset>
 
+                    <!-- COMMON PRODUCTS -->
                     <fieldset>
                         <legend>Common Products</legend>
                         <div class="container">
@@ -272,6 +244,7 @@
                         </div>
                     </fieldset>
 
+                    <!-- CUISINE TYPE -->
                     <fieldset>
                         <legend>Cuisine</legend>
                         <div class="container">
@@ -295,6 +268,30 @@
                                     <option value="include" {% if "indian" in data['include'] %} selected {% endif %}>
                                         Include</option>
                                     <option value="exclude" {% if "indian" in data['exclude'] %} selected {% endif %}>
+                                        Exclude</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="mediterranean">Mediterranean</label>
+                                <select name="mediterranean" id="mediterranean">
+                                    <option value="none" {% if "mediterranean" not in data['include'] or "mediterranean"
+                                        not in data['exclude'] %} selected {% endif %}>--</option>
+                                    <option value="include" {% if "mediterranean" in data['include'] %} selected {%
+                                        endif %}>Include</option>
+                                    <option value="exclude" {% if "mediterranean" in data['exclude'] %} selected {%
+                                        endif %}>Exclude</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="middle_eastern">Middle Eastern</label>
+                                <select name="middle_eastern" id="middle_eastern">
+                                    <option value="none" {% if "middle_eastern" not in data['include'] or "middle_eastern" not in
+                                        data['exclude'] %} selected {% endif %}>--</option>
+                                    <option value="include" {% if "middle_eastern" in data['include'] %} selected {% endif %}>
+                                        Include</option>
+                                    <option value="exclude" {% if "middle_eastern" in data['exclude'] %} selected {% endif %}>
                                         Exclude</option>
                                 </select>
                             </div>
@@ -346,16 +343,27 @@
                                         Exclude</option>
                                 </select>
                             </div>
+
+                            <div>
+                                <label for="dessert">Dessert</label>
+                                <select name="dessert" id="dessert">
+                                    <option value="none" {% if "dessert" not in data['include'] or "dessert" not in
+                                        data['exclude'] %} selected {% endif %}>--</option>
+                                    <option value="include" {% if "dessert" in data['include'] %} selected {% endif %}>
+                                        Include</option>
+                                    <option value="exclude" {% if "dessert" in data['exclude'] %} selected {% endif %}>
+                                        Exclude</option>
+                                </select>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
             </div>
 
             <div class="right-col">
-                <div class="neutralColor" style="height:100%">
-                    <fieldset style="overflow-y:auto;height:96%">
+                <div class="neutralColor" style="height:100%;">
+                    <fieldset style="overflow-y:auto;height:97%">
                         <legend>Favorited Dishes</legend>
-
                         {% for dish in data['dishes'] %}
                             <div>
                                 <input type="checkbox" id={{ dish.0 }} name="favs" value={{ dish.0 }} {% if dish.0 in
@@ -365,7 +373,6 @@
                         {% endfor %}
                     </fieldset>
                 </div>
-
             </div>
         </div>
 
