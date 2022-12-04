@@ -1,7 +1,12 @@
-import os, calendar
+import os, sys, calendar
 from datetime import datetime, timedelta
+
+sys.path.append("/home/cch106/whereRUeating-main")
+
+
 from server.AccountServices import *
 from server.DishServices import *
+from server.DiningServices import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 template_dir = os.getcwd() + '/client/'
@@ -203,6 +208,41 @@ def search():
             "exclude":tag_exclude_list,
             "complete_search":completeSearch}   
     return render_template('Search.html', data=data)
+
+@app.route('/Restaurants/', methods=['GET', 'POST'])
+def restaurants():
+    # print("doing something")
+    username=session['username'] if 'loggedin' in session else ""
+    tag_include_list, tag_exclude_list = list(), list()
+    restaurantDict = {}
+
+    if request.method == 'GET':
+        restaurantDict = getOffCampusRestaurants()
+
+    elif request.method == 'POST':
+        # extracts parameters to include and exclude  
+        tag_exclude_list = list()
+        tag_include_list = synthesize_whitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+        print(tag_include_list)
+        print()
+
+        for i in ITEMS_TO_CHECK:
+            if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
+            elif request.form.get(i) == 'include': tag_include_list.append(i)  
+
+        print(tag_include_list)
+        print(tag_exclude_list)
+
+        restaurantDict = getRestaurantsUsingTags(tag_include_list, tag_exclude_list)  
+
+    # print(restaurantDict)
+
+    data = {"username":username,
+            "include":tag_include_list,
+            "exclude":tag_exclude_list,
+            "restaurants":restaurantDict}   
+
+    return render_template('Restaurants.html', data=data)
 
 '''
 FUNCTIONING
