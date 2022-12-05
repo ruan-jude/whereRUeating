@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>whereRUeating</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="topnav">
+        <img src="{{ url_for('static', filename='images/minimallogo.png') }}" style="height:100%;">
+        <a href="{{ url_for('home')}}">Home</a>
+		<a href="{{ url_for('chooseUser')}}">Edit Users</a>
+        <a class="active" href="{{ url_for('chooseRestaurant')}}">Edit Restaurants</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <form method="post">
+        <div class="container">
+            <h1>Editing Restaurant</h1>
+            <form method="post">
+                <label for="restaurant">Restaurant name:</label>
+                <input type="text" id="name" name="name" size="50" value="{{data['restaurantInfo'].0}}">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" size="50" value="{{data['restaurantInfo'].1}}">
+            </form>
+            <br>
+            <div class="container">
+                <fieldset>
+                  <legend>Cuisine Type</legend>
+      
+                  <div class="container">
+                    <div>
+                      <input type="checkbox" id="vegan" name="cuisine" value="vegan" {% if "vegan" in data['tags'] %} checked {% endif %}/>
+                      <label for="vegan">Vegan</label>
+      
+                      <input type="checkbox" id="vegetarian" name="cuisine" value="vegetarian" {% if "vegetarian" in data['tags'] %} checked {% endif %}/>
+                      <label for="vegetarian">Vegetarian</label>
+      
+                      <input type="checkbox" id="chinese" name="cuisine" value="chinese" {% if "chinese" in data['tags'] %} checked {% endif %}/>
+                      <label for="chinese">Chinese</label>
+      
+                      <input type="checkbox" id="indian" name="cuisine" value="indian" {% if "indian" in data['tags'] %} checked {% endif %}/>
+                      <label for="indian">Indian</label>
+                    </div>
+                  </div>
+                  <br>
+                  <div class="container">
+                    <div>
+                      <input type="checkbox" id="mediterranean" name="cuisine" value="mediterranean" {% if "mediterranean" in data['tags'] %} checked {% endif %}/>
+                      <label for="mediterranean">Mediterranean</label>
+      
+                      <input type="checkbox" id="middle_eastern" name="cuisine" value="middle_eastern" {% if "middle_eastern" in data['tags'] %} checked {% endif %}/>
+                      <label for="middle_eastern">Middle Eastern</label>
+      
+                      <input type="checkbox" id="mexican" name="cuisine" value="mexican" {% if "mexican" in data['tags'] %} checked {% endif %}/>
+                      <label for="mexican">Mexican</label>
+      
+                      <input type="checkbox" id="italian" name="cuisine" value="italian" {% if "italian" in data['tags'] %} checked {% endif %}/>
+                      <label for="italian">Italian</label>
+                    </div>
+      
+                  </div>
+                  <br>
+                  <div class="container">
+                    <div>
+                      <input type="checkbox" id="japanese" name="cuisine" value="japanese" {% if "japanese" in data['tags'] %} checked {% endif %}/>
+                      <label for="japanese">Japanese</label>
+      
+                      <input type="checkbox" id="cafe" name="cuisine" value="cafe" {% if "cafe" in data['tags'] %} checked {% endif %}/>
+                      <label for="cafe">Cafe & Coffee</label>
+      
+                      <input type="checkbox" id="dessert" name="cuisine" value="dessert" {% if "dessert" in data['tags'] %} checked {% endif %}/>
+                      <label for="dessert">Dessert</label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <br>
+            <button type="submit" name="submit_button" value="delete">Delete Restaurant</button>
+            <br>
+            <button type="submit" name="submit_button" value="save">Save Changes</button>
+            <button type="button" onclick="location.href={{ url_for('chooseRestaurant') }}">Back (Undo Changes)</button>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -64,13 +64,6 @@ def createAccount(emailInput, usernameInput, passwordInput, confirmInput):
     cursor.execute(query3, (usernameInput,))
     resultSet = cursor.fetchall()
     readConn.close()
-
-    # adding user role to new user in userRoles table
-    query4 = "INSERT INTO userRoles (user_id, role_id) VALUES (?, ?)"
-    cursor,write_conn = setupCursor("write")
-    cursor.execute(query4, (resultSet[0][0], 3))
-    write_conn.commit()
-    write_conn.close()
     
     return True, resultSet[0]
 
@@ -205,6 +198,8 @@ def getUserRole(userID):
     cursor.execute(query, (userID,))
     userRole = cursor.fetchall()
     readConn.close()
+
+    if userRole==None or not bool(userRole): return None
 
     return userRole[0][0]
 

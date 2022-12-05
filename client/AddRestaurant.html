@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>whereRUeating</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="topnav">
+    <img src="{{ url_for('static', filename='images/minimallogo.png') }}" style="height:100%;">
+    <a href="{{ url_for('home')}}">Home</a>
+    <a href="{{ url_for('chooseUser')}}">Edit Users</a>
+    <a class="active" href="{{ url_for('chooseRestaurant')}}">Edit Restaurants</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
+  <form method="post">
+    <div class="container">
+      <h1>Adding Restaurant</h1>
+      <form method="post">
+        <label for="restaurant">Restaurant name:</label>
+        <input type="text" id="name" name="name" size="50">
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" size="50">
+
+        <br>
+
+        <label for="oncampus">Location:</label>
+        <select name="oncampus" id="oncampus">
+          <option value="0" selected>Off-Campus</option>
+          <option value="1">On-Campus</option>
+        </select>
+
+        <br>
+
+        <div class="container">
+          <fieldset>
+            <legend>Cuisine Type</legend>
+
+            <div class="container">
+              <div>
+                <input type="checkbox" id="vegan" name="cuisine" value="vegan" />
+                <label for="vegan">Vegan</label>
+
+                <input type="checkbox" id="vegetarian" name="cuisine" value="vegetarian" />
+                <label for="vegetarian">Vegetarian</label>
+
+                <input type="checkbox" id="chinese" name="cuisine" value="chinese" />
+                <label for="chinese">Chinese</label>
+
+                <input type="checkbox" id="indian" name="cuisine" value="indian" />
+                <label for="indian">Indian</label>
+              </div>
+            </div>
+            <br>
+            <div class="container">
+              <div>
+                <input type="checkbox" id="mediterranean" name="cuisine" value="mediterranean" />
+                <label for="mediterranean">Mediterranean</label>
+
+                <input type="checkbox" id="middle_eastern" name="cuisine" value="middle_eastern" />
+                <label for="middle_eastern">Middle Eastern</label>
+
+                <input type="checkbox" id="mexican" name="cuisine" value="mexican" />
+                <label for="mexican">Mexican</label>
+
+                <input type="checkbox" id="italian" name="cuisine" value="italian" />
+                <label for="italian">Italian</label>
+              </div>
+
+            </div>
+            <br>
+            <div class="container">
+              <div>
+                <input type="checkbox" id="japanese" name="cuisine" value="japanese" />
+                <label for="japanese">Japanese</label>
+
+                <input type="checkbox" id="cafe" name="cuisine" value="cafe" />
+                <label for="cafe">Cafe & Coffee</label>
+
+                <input type="checkbox" id="dessert" name="cuisine" value="dessert" />
+                <label for="dessert">Dessert</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </form>
+      <br><br>
+      <button type="submit" name="submit_button">Add Restaurant</button>
+      <button type="button" onclick="location.href={{ url_for('chooseRestaurant') }}">Back (Undo Changes)</button>
+    </div>
+
+    </div>
+  </form>
+
+  <br>
+  <div class="container" style="padding:50px">
+    {% for message in get_flashed_messages() %}
+    <h2>ERROR</h2>
+    <p>{{message}}</p>
+    {% endfor %}
+  </div>
+
+</body>
+
+</html>

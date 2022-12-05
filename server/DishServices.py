@@ -4,7 +4,21 @@ from server.HelperMethods import *
 from server.DatabaseServices import *
 from server.AccountServices import *
 
-# ===== DISH FUNCTIONS =====
+# ===== DISH INFO =====
+'''
+Checks whether a dish id is valid
+'''
+def checkValidDish(dishID):
+    query = "SELECT * FROM dishes WHERE dishes.id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    if resultSet == None or not resultSet: return False
+    return True
+
 '''
 Gets all menu items
 '''
@@ -30,56 +44,6 @@ def getDishName(dishID):
     readConn.close()
 
     return resultSet[0][0]
-
-'''
-Gets all tags associated with a given dish
-'''
-def getDishTags(dishID):
-    query = "SELECT dishInfo.tag_name FROM dishInfo WHERE dishInfo.dish_id = ?"
-
-    cursor, readConn = setupCursor("read")
-    cursor.execute(query, (dishID, ))
-    resultSet = cursor.fetchall()
-    readConn.close()
-
-    return isolateFirstValueFromTuple(resultSet)
-
-'''
-Checks whether a dish id is valid
-'''
-def checkValidDish(dishID):
-    query = "SELECT * FROM dishes WHERE dishes.id = ?"
-
-    cursor, readConn = setupCursor("read")
-    cursor.execute(query, (dishID, ))
-    resultSet = cursor.fetchall()
-    readConn.close()
-
-    if resultSet == None or not resultSet: return False
-    return True
-
-'''
-Inserts the tags of specified dish
-'''
-def addDishTags(dishID, dishTags):
-    query = "INSERT IGNORE INTO dishInfo (dish_id, tag_name) VALUES (?, ?)"
-
-    cursor, writeConn = setupCursor("write")
-    for tag in dishTags:
-        cursor.execute(query, (dishID, tag))
-    writeConn.commit()
-    writeConn.close()
-
-'''
-Deletes tags of specified dish
-'''
-def clearDishTags(dishID):
-    query = "DELETE FROM dishInfo WHERE dish_id=?"
-
-    cursor, deleteConn = setupCursor("write")
-    cursor.execute(query, (dishID,))
-    deleteConn.commit()
-    deleteConn.close()
 
 '''
 Returns a list dateRes in the following format
@@ -118,6 +82,44 @@ def getDishAvailability(dishID):
 
     return dateRes
 # =======================
+
+# ===== DISH TAGS =====
+'''
+Gets all tags associated with a given dish
+'''
+def getDishTags(dishID):
+    query = "SELECT dishInfo.tag_name FROM dishInfo WHERE dishInfo.dish_id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (dishID, ))
+    resultSet = cursor.fetchall()
+    readConn.close()
+
+    return isolateFirstValueFromTuple(resultSet)
+
+'''
+Inserts the tags of specified dish
+'''
+def addDishTags(dishID, dishTags):
+    query = "INSERT IGNORE INTO dishInfo (dish_id, tag_name) VALUES (?, ?)"
+
+    cursor, writeConn = setupCursor("write")
+    for tag in dishTags:
+        cursor.execute(query, (dishID, tag))
+    writeConn.commit()
+    writeConn.close()
+
+'''
+Deletes tags of specified dish
+'''
+def clearDishTags(dishID):
+    query = "DELETE FROM dishInfo WHERE dish_id=?"
+
+    cursor, deleteConn = setupCursor("write")
+    cursor.execute(query, (dishID,))
+    deleteConn.commit()
+    deleteConn.close()
+# ===============
 
 # ===== MENU FUNCTIONS =====
 '''

@@ -19,9 +19,6 @@ def home():
     # else, go to generic home page
     return render_template('Home.html', username="", data="")
 
-'''
-FUNCTIONING
-'''
 @app.route('/Home/<username>/', methods=['GET'])
 def userHome(username):
     # if user is logged in, render user home page
@@ -40,15 +37,11 @@ def userHome(username):
         for tag in CUISINE_TAGS:
             if tag in userExclude: cuisineTagExcludeList.append(tag)
             elif tag in userInclude: cuisineTagIncludeList.append(tag)
-        restaurants = getRestaurantsUsingTags(cuisineTagIncludeList, cuisineTagExcludeList)
-        if not bool(restaurants): restaurants = None
-        
-        # if no favoriteDishes, set to None
+
         if not itemsDates: itemsDates = None
         data = {
             'itemsDates':itemsDates,
-            'userRole':getUserRole(session['id']),
-            'restaurants':restaurants
+            'userRole':getUserRole(session['id'])
         }
         return render_template('Home.html', username=username, data=data)
 
@@ -101,9 +94,6 @@ def create():
 # ===============
 
 # ===== GENERAL USER TABS =====
-'''
-FUNCTIONING
-'''
 @app.route('/Search/', methods=['GET', 'POST'])
 def search():
     # TODO: add search meal bar to search specifically OR select meals to search
@@ -149,9 +139,6 @@ def search():
             "restaurants":restaurants}   
     return render_template('Search.html', data=data)
 
-'''
-FUNCTIONING
-'''
 @app.route('/Menu/', methods=['GET', 'POST'])
 def menu():
     username = session['username'] if 'username' in session else ""
@@ -203,10 +190,6 @@ def menu():
 # ===============
 
 # ===== USER SPECIFIC PAGES =====
-'''
-Can only access this if logged in
-FUNCTIONING
-'''
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
     currentUserID = session['id']
@@ -241,9 +224,92 @@ def userSettings():
     return render_template('UserSettings.html', data=data)
 
 # ===== ADMIN CHOICES =====
-'''
+@app.route('/AddRestaurant/', methods=['GET', 'POST'])
+def addRestaurant():
+    # if non-admin account tries to access page, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 1: return redirect(url_for("home"))
 
-'''
+    # =====
+    if request.method == 'POST':
+        name = request.form.get('name')
+        onCampus = int(request.form.get('oncampus'))
+        address = request.form.get('address')
+        newTags = request.form.getlist('cuisine')
+
+        # if any field is empty, throw error
+        if not bool(name) or not bool(address):
+            flash("Please fill out fields!")        
+        # if restaurant name already in the database
+        elif checkRestaurantExists(name):
+            flash("Restaurant already in system!")
+        # otherwise, insert the restaurant into database
+        else:
+            insertRestaurant(name, onCampus, address)
+            restaurantID = getRestaurantID(name)
+            clearRestaurantTags(restaurantID)
+            addRestaurantTags(restaurantID, newTags)  
+            return redirect(url_for('chooseRestaurant'))
+
+    return render_template('AddRestaurant.html')
+
+@app.route('/ChooseRestaurant/', methods=['GET', 'POST'])
+def chooseRestaurant():
+    # if non-admin account tries to access page, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 1: return redirect(url_for("home"))
+
+    # =====
+
+    if request.method == 'POST':
+        if request.form.get('submit_button') == 'add':
+            return redirect(url_for("addRestaurant"))
+
+        restaurantID = request.form.get('restaurant')
+        return redirect(url_for("editRestaurant", restaurantID=restaurantID))
+
+    data={
+        'restaurants':getOffCampusRestaurants()
+    }
+    return render_template('ChooseRestaurant.html', data=data)
+
+@app.route('/EditRestaurant/<restaurantID>/', methods=['GET', 'POST'])
+def editRestaurant(restaurantID):
+    # if non-admin account tries to access page, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 1: return redirect(url_for("home"))
+
+    # =====
+
+    # if restaurantID is invalid, go to choose restaurant page
+    if not checkValidRestaurant(restaurantID): return redirect(url_for('chooseRestaurant'))
+
+    # updates restaurant information in the database
+    if request.method == 'POST':
+        name = request.form.get('name')
+        address = request.form.get('address')
+        newTags = request.form.getlist('cuisine')
+
+        if request.form.get('submit_button') == 'save':
+            updateRestaurantInfo(restaurantID, name, address)
+            clearRestaurantTags(restaurantID)
+            addRestaurantTags(restaurantID, newTags)  
+        elif request.form.get('submit_button') == 'delete':
+            deleteRestaurant(restaurantID)
+            return redirect(url_for("chooseRestaurant"))
+
+    data={
+        'username':session['username'],
+        'restaurantInfo':(getRestaurantName(restaurantID), getRestaurantAddress(restaurantID)),
+        'userRole':getUserRole(session['id']),
+        'tags':getRestaurantTags(restaurantID)
+    }
+    return render_template('EditRestaurant.html', data=data)
+
+
 @app.route('/ChooseUser/', methods=['GET', 'POST'])
 def chooseUser():
     if request.method == 'POST': 
@@ -256,14 +322,10 @@ def chooseUser():
     }
     return render_template('ChooseUser.html', data=data)
 
-'''
-Can only access this if logged in
-
-'''
-@app.route('/EditTags/<user_id>/', methods=['GET', 'POST'])
-def editUser(user_id):
+@app.route('/EditUser/<userID>/', methods=['GET', 'POST'])
+def editUser(userID):
     # if dish_id is invalid, go to choose dish page
-    if not validUser(user_id): return redirect(url_for('chooseUser'))
+    if not validUser(userID): return redirect(url_for('chooseUser'))
 
     # adds new tags to the database
     if request.method == 'POST':
@@ -275,22 +337,18 @@ def editUser(user_id):
     data={
         'username':session['username'],
         'tags':getAllTags(),
-        'editUser':getUsername(user_id)
+        'editUser':getUsername(userID)
     }
     return render_template('EditUser.html', data=data)
 
 # ===============
 
 # ===== RESTAURANT ADMIN TABS =====
-'''
-Can only access this if logged in
-FUNCTIONING
-'''
 @app.route('/ChooseDish/', methods=['GET', 'POST'])
 def chooseDish():
     if request.method == 'POST': 
-        dish_id = request.form.get('dish')
-        return redirect(url_for("editTags", dish_id=dish_id))
+        dishID = request.form.get('dish')
+        return redirect(url_for("editTags", dishID=dishID))
     
     data={
         'username':session['username'],
@@ -298,13 +356,9 @@ def chooseDish():
     }
     return render_template('ChooseDish.html', data=data)
 
-'''
-Can only access this if logged in
-FUNCTIONING
-'''
-@app.route('/EditTags/<dish_id>/', methods=['GET', 'POST'])
+@app.route('/EditTags/<dishID>/', methods=['GET', 'POST'])
 def editTags(dishID):
-    # if dish_id is invalid, go to choose dish page
+    # if dishID is invalid, go to choose dish page
     if not checkValidDish(dishID): return redirect(url_for('chooseDish'))
 
     # adds new tags to the database
@@ -322,9 +376,6 @@ def editTags(dishID):
     return render_template('EditTags.html', data=data)
 # ===============
 
-'''
-FUNCTIONING
-'''
 @app.route('/Home/logout')
 def logout():
     # Remove session data, this will log the user out
