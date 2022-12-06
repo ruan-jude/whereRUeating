@@ -1,4 +1,7 @@
 import os
+import sys
+print("SYSTEM PATH: " + str(sys.path))
+
 from server.HelperMethods import *
 from server.AccountServices import *
 from server.DishServices import *
@@ -148,6 +151,8 @@ def menu():
     menuDays, todayStr = getDateStrings()
     dateParam = [(i, day[0]) for i, day in enumerate(menuDays)]
 
+    dhBusyPrediction = checkDiningHallsBusy()
+
     if request.method == 'GET':
         # TODO: add implementation to default given current time
         # Defaults to Livingston lunch menu (no real reason, just wanted to choose randomly)
@@ -185,8 +190,44 @@ def menu():
             "dates":dateParam,
             "mealTime":mealTime,
             "checked":checked,
-            "menu":menu}    
+            "menu":menu,
+            "diningHallBusy": dhBusyPrediction}    
     return render_template('Menu.html', data=data)
+
+@app.route('/Restaurants/', methods=['GET', 'POST'])
+def restaurants():
+    # print("doing something")
+    username=session['username'] if 'loggedin' in session else ""
+    tag_include_list, tag_exclude_list = list(), list()
+    restaurantDict = {}
+
+    if request.method == 'GET':
+        restaurantDict = getOffCampusRestaurants()
+
+    elif request.method == 'POST':
+        # extracts parameters to include and exclude  
+        tag_exclude_list = list()
+        tag_include_list = synthesizeWhitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+        print(tag_include_list)
+        print()
+
+        # for i in ITEMS_TO_CHECK:
+        #     if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
+        #     elif request.form.get(i) == 'include': tag_include_list.append(i)  
+
+        print(tag_include_list)
+        print(tag_exclude_list)
+
+        restaurantDict = getRestaurantsUsingTags(tag_include_list, tag_exclude_list)  
+
+    # print(restaurantDict)
+
+    data = {"username":username,
+            "include":tag_include_list,
+            "exclude":tag_exclude_list,
+            "restaurants":restaurantDict}   
+
+    return render_template('Restaurants.html', data=data)
 # ===============
 
 # ===== USER SPECIFIC PAGES =====
