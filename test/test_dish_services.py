@@ -17,13 +17,56 @@ from server.DishServices import *
 class TestDishServices(unittest.TestCase):
 
     @mock.patch.object(mariadb.Cursor, "fetchall")
-    @unittest.skip("function not implemented")
-    def test_search_menu_tems(self, mock):
-        mock.return_value = [("result_set",), ("result_set")]
-        search_term = "test_term"
-        current_user = "Some person"
-        searchMenuItems(search_term, current_user)
-        mock.assert_called()
+    def test_check_valid_dish(self, mock):
+        mock.return_value = ((1, "paratha"),)
+        self.assertTrue(checkValidDish(1))
+
+    @mock.patch.object(mariadb.Cursor, "fetchall")
+    def test_check_valid_dish_false(self, mock):
+        mock.return_value = ()
+        self.assertFalse(checkValidDish(123))
+
+        mock.return_value = None
+        self.assertFalse(checkValidDish(123))
+
+    @mock.patch.object(mariadb.Cursor, "fetchall")
+    def test_get_all_dishes(self, mock):
+        expected_list = ((1, "kosher salt"), (2, "spicy chicken nuggets"), (3, "sushi"))
+        mock.return_value = expected_list
+        self.assertEqual(getAllDishes(), expected_list)
+
+    @mock.patch.object(mariadb.Cursor, "fetchall")
+    def test_get_restaurant_name(self, mock):
+        mock.return_value = (("Potion of Fire Resistance",), )
+        self.assertEqual(getDishName(512), "Potion of Fire Resistance")
+
+
+    @mock.patch.object(mariadb.Cursor, "fetchall")
+    def test_get_dish_tags(self, mock):
+        mock.return_value = (("kosher",), ("spicy",), ("some_tag", ))
+        expected_list = ["kosher", "spicy", "some_tag"]
+        self.assertEqual(getDishTags(1), expected_list)
+
+    @mock.patch.object(mariadb.Cursor, "execute")
+    def test_add_dish_tags(self, mock):
+        some_id = 1
+        some_tags = ("Krusty Krab", "Jerma", "Peeped horror")
+        addDishTags(some_id, some_tags)
+        self.assertEqual(mock.call_count, len(some_tags))
+
+    @mock.patch.object(mariadb.Cursor, "execute")
+    def test_add_dish_tags_empty_tag_list(self, mock):
+        some_id = 1
+        some_tags = ()
+        addDishTags(some_id, some_tags)
+        self.assertEqual(mock.call_count, len(some_tags))
+
+    @mock.patch.object(mariadb.Cursor, "execute")
+    def test_clear_dish_tags(self, mock):
+        delete_query = "DELETE FROM dishInfo WHERE dish_id=?"
+        some_id = 1
+        clearDishTags(some_id)
+        mock.assert_called_with(delete_query, (some_id,))
 
     @mock.patch.object(mariadb.Cursor, "fetchall")
     def test_get_menu_items(self, mock):
@@ -50,7 +93,7 @@ class TestDishServices(unittest.TestCase):
         restaurant_name = "Livingston DH"
         meal_time = "breakfast"
 
-        test_return = getMenuItemsWithUserPreferences(test_user, restaurant_name, test_date, meal_time)
+        test_return = getMenuItemsWithPreferences(test_user, restaurant_name, test_date, meal_time)
         mock_fetch.assert_called()
         mock_execute.assert_called()
         self.assertEqual(test_return, mock_fetch.return_value)
@@ -69,7 +112,7 @@ class TestDishServices(unittest.TestCase):
             WHERE restaurants.name = 'Nielson DH' AND menuItems.date = '2022-09-19' 
             AND menuItems.meal_time = 'Breakfast' AND (dishInfo.tag_name = 'tag1' OR dishInfo.tag_name = 'tag2')"""
 
-        return_query = selectMenuItemsIncludingTags(test_tagList, test_dh, test_date, test_meal)
+        return_query = selectMenuItemsWithTags(1, test_tagList, test_dh, test_date, test_meal)
         self.assertEqual(return_query.replace('\n', "").replace(" ", ''), full_query.replace('\n', "").replace(" ", ''))
 
     def test_select_menu_items_excluding_tags(self):
@@ -86,14 +129,14 @@ class TestDishServices(unittest.TestCase):
             WHERE restaurants.name = 'Nielson DH' AND menuItems.date = '2022-09-19' 
             AND menuItems.meal_time = 'Breakfast' AND (dishInfo.tag_name <> 'tag1' OR dishInfo.tag_name <> 'tag2')"""
 
-        return_query = selectMenuItemsExcludingTags(test_tagList, test_dh, test_date, test_meal)
+        return_query = selectMenuItemsWithTags(0, test_tagList, test_dh, test_date, test_meal)
         self.assertEqual(return_query.replace('\n', "").replace(" ", ''), full_query.replace('\n', "").replace(" ", ''))
 
-    def test_isolate_date(self):
-        test_date = "2022-09-19 00:00:00"
-        return_date = isolate_date(test_date)
-        expected_date = "2022-09-19"
-        self.assertEqual(return_date, expected_date)
+    @mock.patch.object(mariadb.Cursor, "fetchall")
+    def test_get_all_tags(self, mock):
+        mock.return_value = (("kosher",), ("spicy",), ("some_tag", ))
+        expected_list = ["kosher", "spicy", "some_tag"]
+        self.assertEqual(getAllTags(), expected_list)
 
 if __name__ == '__main__':
     unittest.main()
