@@ -20,7 +20,7 @@ def checkDiningHallsBusy():
         elif endTime.hour >= currentHour and endTime.hour - currentHour <= 1 and (currentMinute >= 30):
             return "Classes will end soon at " + datetime.datetime.strptime(str(endTime),'%H:%M:%S').strftime('%I:%M %p') + ", and the dining halls will get busier."
      
-    return "Probably not busy at this time."
+    return "Dining halls are probably not busy at this time."
 # ===============
 
 # ===== RESTAURANTS CHECKS =====
