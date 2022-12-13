@@ -187,6 +187,14 @@ def getAllUsers():
     readConn.close()
 
     return users
+
+def deleteUser(userID):
+    query = "DELETE FROM users WHERE id = ?"
+
+    cursor, deleteConn = setupCursor("write")
+    cursor.execute(query, (userID, ))
+    deleteConn.commit()
+    deleteConn.close()
     
 '''
 Gets user role id

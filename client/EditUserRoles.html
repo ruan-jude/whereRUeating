@@ -24,21 +24,24 @@
                     <legend>Users</legend>
                     {% for user in data['users'] %}
                         {% if user.1 != "admin" %}
-                            <div>
-                                <select name={{ user.0 }}>
-                                    <option value="2" {% if data['adminUsers'] != None and user.0 in data['adminUsers'] %} selected {% endif %}>Restaurant Admin</option>
-                                    <option value="3" {% if data['adminUsers'] == None or user.0 not in data['adminUsers'] %} selected {% endif %}>User</option>
-                                </select>
+                            <div class="container">
+                                <br>
                                 <label>{{ user.1 }}</label>
+                                <div>
+                                    <select name={{ user.0 }}>
+                                        <option value="2" {% if data['adminUsers'] != None and user.0 in data['adminUsers'] %} selected {% endif %}>Restaurant Admin</option>
+                                        <option value="3" {% if data['adminUsers'] == None or user.0 not in data['adminUsers'] %} selected {% endif %}>User</option>
+                                    </select>
+                                    <button type="submit" name="submit_button" value={{ user.0 }}>Delete</button>
+                                </div>
+                                <br>
                             </div>
+                            <hr> 
                         {% endif %}
                     {% endfor %}
                 </fieldset>
             </div>
             <br>
-            {% if data['adminUsers'] != None %}
-            <button type="submit" name="submit_button" value="editAdmin">Edit Admin Restaurants</button>
-            {% endif %}
             <button type="submit" name="submit_button" value="save">Save Changes</button>
         </div>
     </form>

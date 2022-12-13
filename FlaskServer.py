@@ -1,6 +1,5 @@
 import os
 import sys
-print("SYSTEM PATH: " + str(sys.path))
 
 from server.HelperMethods import *
 from server.AccountServices import *
@@ -41,10 +40,14 @@ def userHome(username):
             if tag in userExclude: cuisineTagExcludeList.append(tag)
             elif tag in userInclude: cuisineTagIncludeList.append(tag)
 
+        restaurants = getRestaurantsUsingTags(cuisineTagIncludeList, cuisineTagExcludeList)
+        if not bool(restaurants): restaurants = None
         if not itemsDates: itemsDates = None
+
         data = {
             'itemsDates':itemsDates,
-            'userRole':getUserRole(session['id'])
+            'userRole':getUserRole(session['id']),
+            'restaurants':restaurants
         }
         return render_template('Home.html', username=username, data=data)
 
@@ -360,16 +363,20 @@ def editUserRoles():
     # =====s
 
     if request.method == 'POST': 
-        print(request.form)
-        newAdmins = list()
-        for item in request.form:
-            if item == 'submit_button': continue
+        if request.form.get('submit_button') == 'save':
+            newAdmins = list()
+            for item in request.form:
+                if item == 'submit_button': continue
 
-            if request.form.get(item) == '2':
-                newAdmins.append(int(item))
+                if request.form.get(item) == '2':
+                    newAdmins.append(int(item))
+            clearUserRoles()
+            addAdminRoles(newAdmins)
+        else:
+            userID = int(request.form.get('submit_button'))
+            deleteUser(userID)
+
         
-        clearUserRoles()
-        addAdminRoles(newAdmins)
     
     data={
         'users':getAllUsers(),
