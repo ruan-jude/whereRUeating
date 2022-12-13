@@ -244,8 +244,13 @@ def userSettings():
     if request.method == 'POST':
         tagExcludeList = list()
         tagIncludeList = synthesizeWhitelist(request.form.getlist('tag'), request.form.getlist('diet'))
+
         favDishList = [int(fav) for fav in request.form.getlist('favs')]
         for tag in CUISINE_TAGS:
+            if request.form.get(tag) == 'exclude': tagExcludeList.append(tag)
+            elif request.form.get(tag) == 'include': tagIncludeList.append(tag)
+
+        for tag in MEAT_TAGS:
             if request.form.get(tag) == 'exclude': tagExcludeList.append(tag)
             elif request.form.get(tag) == 'include': tagIncludeList.append(tag)
         
