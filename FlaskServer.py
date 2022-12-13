@@ -154,8 +154,6 @@ def menu():
     dhBusyPrediction = checkDiningHallsBusy()
 
     if request.method == 'GET':
-        # TODO: add implementation to default given current time
-        # Defaults to Livingston lunch menu (no real reason, just wanted to choose randomly)
         diningHall = "Livingston DH"
         currentDayStr = todayStr[0]
         mealTime = "lunch"
@@ -233,6 +231,9 @@ def restaurants():
 # ===== USER SPECIFIC PAGES =====
 @app.route('/UserSettings/', methods=['GET', 'POST'])
 def userSettings():
+    # if not logged in and tried to acces, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+
     currentUserID = session['id']
     userWhitelist, userBlacklist = getUserPreferences(currentUserID)
     favDishList = getUserFavs(currentUserID)
@@ -343,50 +344,50 @@ def editRestaurant(restaurantID):
             return redirect(url_for("chooseRestaurant"))
 
     data={
-        'username':session['username'],
         'restaurantInfo':(getRestaurantName(restaurantID), getRestaurantAddress(restaurantID)),
-        'userRole':getUserRole(session['id']),
         'tags':getRestaurantTags(restaurantID)
     }
     return render_template('EditRestaurant.html', data=data)
 
 
-@app.route('/ChooseUser/', methods=['GET', 'POST'])
-def chooseUser():
+@app.route('/EditUserRoles/', methods=['GET', 'POST'])
+def editUserRoles():
+    # if non-admin account tries to access page, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 1: return redirect(url_for("home"))
+
+    # =====s
+
     if request.method == 'POST': 
-        user_id = request.form.get('user')
-        return redirect(url_for("editUser", user_id=user_id))
+        print(request.form)
+        newAdmins = list()
+        for item in request.form:
+            if item == 'submit_button': continue
+
+            if request.form.get(item) == '2':
+                newAdmins.append(int(item))
+        
+        clearUserRoles()
+        addAdminRoles(newAdmins)
     
     data={
-        'username':session['username'],
-        'users':getAllUsers()
+        'users':getAllUsers(),
+        'adminUsers':getAllAdminIDs()
     }
-    return render_template('ChooseUser.html', data=data)
 
-@app.route('/EditUser/<userID>/', methods=['GET', 'POST'])
-def editUser(userID):
-    # if dish_id is invalid, go to choose dish page
-    if not validUser(userID): return redirect(url_for('chooseUser'))
-
-    # adds new tags to the database
-    if request.method == 'POST':
-        print(request.form['submit_button'])
-        newTags = request.form.getlist('tag')
-        #clearDishTags(dish_id)
-        #addDishTags(dish_id, newTags)    
-
-    data={
-        'username':session['username'],
-        'tags':getAllTags(),
-        'editUser':getUsername(userID)
-    }
-    return render_template('EditUser.html', data=data)
+    return render_template('EditUserRoles.html', data=data)
 
 # ===============
 
 # ===== RESTAURANT ADMIN TABS =====
 @app.route('/ChooseDish/', methods=['GET', 'POST'])
 def chooseDish():
+    # if not logged in and tried to acces, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 2: return redirect(url_for("home"))
+
     if request.method == 'POST': 
         dishID = request.form.get('dish')
         return redirect(url_for("editTags", dishID=dishID))
@@ -399,6 +400,11 @@ def chooseDish():
 
 @app.route('/EditTags/<dishID>/', methods=['GET', 'POST'])
 def editTags(dishID):
+    # if not logged in and tried to acces, redirect to home
+    if 'loggedin' not in session: return redirect(url_for("home"))
+    userRole = getUserRole(session['id'])
+    if userRole != 2: return redirect(url_for("home"))
+
     # if dishID is invalid, go to choose dish page
     if not checkValidDish(dishID): return redirect(url_for('chooseDish'))
 
@@ -427,4 +433,4 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(host='172.16.122.27', port='3030')
+    app.run(host='172.16.122.27', port='8080')

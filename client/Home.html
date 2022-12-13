@@ -22,13 +22,12 @@
 		<img src="{{ url_for('static', filename='images/minimallogo.png') }}"  style="height:100%;">
 		<a class="active" href="{{ url_for('home')}}">Home</a>
 		{% if data['userRole'] == 1 %}
-		<a href="{{ url_for('chooseUser')}}">Edit Users</a>
+		<a href="{{ url_for('editUserRoles')}}">Edit Users</a>
 		<a href="{{ url_for('chooseRestaurant')}}">Edit Restaurants</a>
 		<a href="{{ url_for('logout') }}">Logout</a>
 		{% else %}
 			<a href="{{ url_for('menu')}}">DH Menu</a>
-			<a href="{{ url_for('search')}}">Search Now!</a>
-			<a href="{{ url_for('restaurants')}}">Restaurants!</a>
+			<a href="{{ url_for('search')}}">Search</a>
 			{% if username=="" %}
 				<a href="{{ url_for('login')}}">Login Page</a>
 				<a href="{{ url_for('create')}}">Create Account</a>

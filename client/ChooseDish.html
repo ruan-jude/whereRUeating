@@ -12,7 +12,7 @@
         <img src="{{ url_for('static', filename='images/minimallogo.png') }}" style="height:100%;">
         <a href="{{ url_for('home') }}">Home</a>
         <a href="{{ url_for('menu') }}">DH Menu</a>
-        <a href="{{ url_for('search') }}"><b>Search Now!</b></a>
+        <a href="{{ url_for('search') }}"><b>Search</b></a>
         <a href="{{ url_for('userSettings') }}">User Settings</a>
         
         {% if data['username']=="DHadmin" %}

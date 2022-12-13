@@ -42,7 +42,7 @@
         <img src="{{ url_for('static', filename='images/minimallogo.png') }}" style="height:100%;">
         <a href="{{ url_for('home')}}">Home</a>
         <a class="active" href="{{ url_for('menu')}}">DH Menu</a>
-        <a href="{{ url_for('search')}}"><b>Search Now!</b></a>
+        <a href="{{ url_for('search')}}"><b>Search</b></a>
         
         {% if data['username']=="" %}
             <a href="{{ url_for('login')}}">Login Page</a>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>whereRUeating</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="topnav">
+        <img src="{{ url_for('static', filename='images/minimallogo.png') }}" style="height:100%;">
+        <a href="{{ url_for('home')}}">Home</a>
+        <a class="active" href="{{ url_for('editUserRoles')}}">Edit Users</a>
+        <a href="{{ url_for('chooseRestaurant')}}">Edit Restaurants</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <form method="post">
+        <div class="container">
+            <h1>Select User</h1>
+            <div class="neutralColor">
+                <fieldset style="overflow-y:auto;max-height:635px;width:400px">
+                    <legend>Users</legend>
+                    {% for user in data['users'] %}
+                        {% if user.1 != "admin" %}
+                            <div>
+                                <select name={{ user.0 }}>
+                                    <option value="2" {% if data['adminUsers'] != None and user.0 in data['adminUsers'] %} selected {% endif %}>Restaurant Admin</option>
+                                    <option value="3" {% if data['adminUsers'] == None or user.0 not in data['adminUsers'] %} selected {% endif %}>User</option>
+                                </select>
+                                <label>{{ user.1 }}</label>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </fieldset>
+            </div>
+            <br>
+            {% if data['adminUsers'] != None %}
+            <button type="submit" name="submit_button" value="editAdmin">Edit Admin Restaurants</button>
+            {% endif %}
+            <button type="submit" name="submit_button" value="save">Save Changes</button>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -203,6 +203,51 @@ def getUserRole(userID):
 
     return userRole[0][0]
 
+
+def addAdminRoles(adminIDs):
+    query = "INSERT INTO userRoles (user_id, role_id) VALUES (?, ?)"
+
+    cursor, writeConn = setupCursor("write")
+    for id in adminIDs:
+        cursor.execute(query, (id, 2))
+    writeConn.commit()
+    writeConn.close()
+
+def clearUserRoles():
+    query = "DELETE FROM userRoles WHERE user_id != 1"
+
+    cursor, deleteConn = setupCursor("write")
+    cursor.execute(query)
+    deleteConn.commit()
+    deleteConn.close()
+
+
+def getUserRole(userID):
+    query = "SELECT role_id FROM userRoles WHERE user_id = ?"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query, (userID,))
+    userRole = cursor.fetchall()
+    readConn.close()
+
+    if userRole==None or not bool(userRole): return None
+
+    return userRole[0][0]
+
+'''
+'''
+def getAllAdminIDs():
+    query = "SELECT user_id FROM userRoles WHERE role_id=2"
+
+    cursor, readConn = setupCursor("read")
+    cursor.execute(query)
+    userIDs = cursor.fetchall()
+    readConn.close()
+
+    if userIDs==None or not bool(userIDs): return None
+
+    return isolateFirstValueFromTuple(userIDs)
+
 '''
 Checks whether a user id is valid
 '''
