@@ -131,7 +131,7 @@
                         <legend>Off Campus Restaurants</legend>
                         {% for key in data['restaurants'] %}
                             <b style="color:red">{{key}} </b><br>
-                            &emsp;&emsp; {{data['restaurants'][key]}}
+                            &emsp;&emsp; {{data['restaurants'][key][1]}}
                             <hr>
                         {% endfor %}
                     </fieldset>

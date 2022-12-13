@@ -28,10 +28,12 @@ def userHome(username):
         username, userID = session['username'], session['id']
         favoriteDishes=[(dishID, getDishName(dishID)) for dishID in getUserFavs(userID)]
         
+
         # each item is formatted (dishName, mealAvailability list)
         itemsDates = list()
         for (dishID, dishName) in favoriteDishes:
             itemsDates.append((dishName, getDishAvailability(dishID)))
+        if not itemsDates: itemsDates = None
         
         # gets restaurants following favorited criteria
         cuisineTagExcludeList, cuisineTagIncludeList = list(), list()
@@ -39,10 +41,8 @@ def userHome(username):
         for tag in CUISINE_TAGS:
             if tag in userExclude: cuisineTagExcludeList.append(tag)
             elif tag in userInclude: cuisineTagIncludeList.append(tag)
-
         restaurants = getRestaurantsUsingTags(cuisineTagIncludeList, cuisineTagExcludeList)
         if not bool(restaurants): restaurants = None
-        if not itemsDates: itemsDates = None
 
         data = {
             'itemsDates':itemsDates,
@@ -194,41 +194,6 @@ def menu():
             "menu":menu,
             "diningHallBusy": dhBusyPrediction}    
     return render_template('Menu.html', data=data)
-
-@app.route('/Restaurants/', methods=['GET', 'POST'])
-def restaurants():
-    # print("doing something")
-    username=session['username'] if 'loggedin' in session else ""
-    tag_include_list, tag_exclude_list = list(), list()
-    restaurantDict = {}
-
-    if request.method == 'GET':
-        restaurantDict = getOffCampusRestaurants()
-
-    elif request.method == 'POST':
-        # extracts parameters to include and exclude  
-        tag_exclude_list = list()
-        tag_include_list = synthesizeWhitelist(request.form.getlist('tag'), request.form.getlist('diet'))
-        print(tag_include_list)
-        print()
-
-        # for i in ITEMS_TO_CHECK:
-        #     if request.form.get(i) == 'exclude': tag_exclude_list.append(i)
-        #     elif request.form.get(i) == 'include': tag_include_list.append(i)  
-
-        print(tag_include_list)
-        print(tag_exclude_list)
-
-        restaurantDict = getRestaurantsUsingTags(tag_include_list, tag_exclude_list)  
-
-    # print(restaurantDict)
-
-    data = {"username":username,
-            "include":tag_include_list,
-            "exclude":tag_exclude_list,
-            "restaurants":restaurantDict}   
-
-    return render_template('Restaurants.html', data=data)
 # ===============
 
 # ===== USER SPECIFIC PAGES =====
